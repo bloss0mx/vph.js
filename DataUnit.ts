@@ -26,30 +26,32 @@ class DataUnit {
   rmPull(pullOrigin) {
     this.pullList = _.difference(this.pullList, [pullOrigin]);
   }
-  outputData(index?: number): any {
+  outputData(index?: (number | string)): any {
     // console.log('====>', index, this.data);
     if (index === undefined && this.type === 'array') {
       console.log(this.data);
       return this.data.map(item => {
-        return item.outputData();
+        return item;
       });
     } else if (index === undefined && this.type === 'object') {
       let _data = {};
       for (let i in this.data) {
-        _data[i] = this.data[i].outputData();
+        _data[i] = this.data[i];
       }
       return _data;
     } else if (index !== undefined && (this.type === 'array' || this.type === 'object')) {
-      return this.data[index].outputData();
-    } else {
+      return this.data[index];
+    } else if (this.type !== 'array' && this.type !== 'object') {
       return this.data;
     }
   }
   setData(data, name?: (number | string)) {
     if (this.type === 'object' && name) {
       this.data[name].setData(data);
+      this.data[name].run(data, this.type, name);
     } else if (this.type === 'array' && name) {
       this.data[name].setData(data);
+      this.data[name].run(data, this.type, name);
     } else {
       this.data = data;
       this.pushList.map((item, index) => {
@@ -81,19 +83,8 @@ class Arrayy extends DataUnit {
     this.type = 'array';
   }
 
-  dataFilter(data): (DataUnit | Arrayy | Objecty) {
-    const type = testType(data);
-    console.log(data);
-    if (type === 'array') {
-      return new Arrayy(data, this.pushFunc, this.pullFunc);
-    } else if (type === 'object') {
-      return new Objecty(data, this.pushFunc, this.pullFunc);
-    } else {
-      return new DataUnit(data);
-    }
-  }
   cpData(data: Array<any>): Array<DataUnit> {
-    const _data = data.map((item, index) => this.dataFilter(item));
+    const _data = data.map((item, index) => dataFactory(item));
     return _data;
   }
   /**
@@ -142,7 +133,7 @@ class Arrayy extends DataUnit {
 
 
 class Objecty extends DataUnit {
-  protected data: Array<any>;
+  protected data: Object;
   private pushFunc: Function;
   private pullFunc: Function;
 
@@ -156,25 +147,24 @@ class Objecty extends DataUnit {
     this.type = 'object';
   }
 
-  cpData(data: Array<any>): Array<DataUnit> {
+  cpData(data: Array<any>): Object {
     let _data = {}
     for (let i in data) {
-      _data[i] = this.dataFilter(data[i]);
+      _data[i] = dataFactory(data[i]);
     }
-    return data;
+    return _data;
   }
-  dataFilter(data) {
-    console.log('dataFileter');
-    const type = testType(data);
-    if (type === 'array') {
-      return new Arrayy(data, this.pushFunc, this.pullFunc);
-    } else if (type === 'object') {
-      console.log(data);
-      return new Objecty(data, this.pushFunc, this.pullFunc);
-    } else {
-      return new DataUnit(data);
-    }
+  getValues(...params) {
+    const queue = [...params];
+    console.log(queue);
+    const _data = {};
+    queue.forEach(item => {
+      _data[item] = this.outputData(item);
+    });
+    console.log(_data);
+    return _data;
   }
+
 }
 
 
@@ -183,13 +173,15 @@ class Objecty extends DataUnit {
 
 function dataFactory(data) {
   const type = testType(data);
+  console.log(data, type);
   if (type === 'array') {
-    console.log(data);
     return new Arrayy(data);
   } else if (type === 'object') {
     return new Objecty(data);
   } else {
-    return new DataUnit(data);
+    const _data = new DataUnit(data);
+    console.log(_data);
+    return _data;
   }
 }
 

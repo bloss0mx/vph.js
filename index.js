@@ -51,15 +51,15 @@ const component1 = vdFactory(
 		],
 		actions: {
 			interval() {
-				const { value, color, color0, color1, color2, color3, color4, color5, color6, color7, switcher } = this.store;
-				interval(1333).subscribe({
+				const { value, color, color0, color1, color2, color3, color4, color5, color6, color7, switcher } = this.store.getValues('value', 'color', 'color0', 'color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'switcher');
+				interval(1000).subscribe({
 					next: item => {
 						value.setData(item);
 					}
 				});
 				interval(1000).subscribe({
 					next: item => {
-						switcher.setData(item % 3);
+						switcher.setData(item % 333);
 					}
 				})
 				interval(1000).subscribe({
@@ -94,7 +94,7 @@ const time = vdFactory(
 		},
 		actions: {
 			interval() {
-				const { time } = this.store;
+				const { time } = this.store.getValues('time');
 				interval(1000).subscribe({
 					next: item => {
 						const value = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -135,20 +135,20 @@ window.vD1 = vdFactory(
 		},
 		actions: {
 			start() {
-				const { array1 } = this.store;
+				const { array1 } = this.store.getValues('array1');
 				setTimeout(() => {
 					// console.log(array1.outputData(0));
-				}, 2000);
+				}, 200);
 			},
 			interval() {
-				const { second, first, third } = this.store;
+				const { second, first, third } = this.store.getValues('second', 'first', 'third');
 				interval(1000).subscribe({
 					next: item => {
 						first.setData(item);
 						third.setData(item + 3);
 					}
 				});
-				interval(333).subscribe({
+				interval(1000).subscribe({
 					next: item => {
 						second.setData(item * 2);
 					}
