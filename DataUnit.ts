@@ -1,35 +1,49 @@
-import { testType } from './utils';
+import { testType, log } from './utils';
 import _ from 'lodash';
+import {
+  ARRAYY_OPERATE,
+} from './constant';
 
 class DataUnit {
   protected data: any;
   protected pushList: Array<any>;
-  protected pullList: Array<any>;
   protected type: String;
 
   constructor(data: any) {
-    this.data = data;
+    this.data;
     this.pushList = [];
-    this.pullList = [];
     this.type = testType(data);
+
+    if (this.type === 'array' || this.type === 'object') {
+      // throw(`DataUnit type error: data = ${data}`);
+      return;
+    }
+    setTimeout(() => {
+      this.pushList.map((item, index) => {
+        this.data = data;
+        item.run && item.run(data, this.type, index, ARRAYY_OPERATE['add']);
+      });
+    }, 0);
   }
 
   addPush(pushOrigin) {
     this.pushList.push(pushOrigin);
   }
-  addPull(pullOrigin) {
-    this.pullList.push(pullOrigin);
-  }
   rmPush(pushOrigin) {
     this.pushList = _.difference(this.pushList, [pushOrigin]);
   }
-  rmPull(pullOrigin) {
-    this.pullList = _.difference(this.pullList, [pullOrigin]);
+  exchangePushList() {
+    return this.pushList;
   }
   outputData(index?: (number | string)): any {
-    // console.log('====>', index, this.data);
+    // log('====>', index, this.data);
+    if (index && testType(index) === 'string' && index.split('.').length > 1) {
+      return [this.data, ...index.split('.')].reduce((t, i) => {
+        console.log(t, i);
+        return t.outputData ? t.outputData(i) : t[i];
+      });
+    }
     if (index === undefined && this.type === 'array') {
-      console.log(this.data);
       return this.data.map(item => {
         return item;
       });
@@ -46,16 +60,34 @@ class DataUnit {
     }
   }
   setData(data, name?: (number | string)) {
-    if (this.type === 'object' && name) {
-      this.data[name].setData(data);
-      this.data[name].run(data, this.type, name);
-    } else if (this.type === 'array' && name) {
-      this.data[name].setData(data);
-      this.data[name].run(data, this.type, name);
+
+    console.warn('========  setData  ========')
+    console.log(name, this.data);
+
+    let isChanged = '';
+
+    if (this.type === 'object' && name !== undefined) {
+      this.outputData(name).setData(data);
+      // this.data[name].run(data, this.type, name);
+      // isChanged = ARRAYY_OPERATE['set'];
+    } else if (this.type === 'array' && name !== undefined) {
+      console.log(name, data, this.data, this.outputData(name));
+      this.outputData(name).setData(data);
+      // this.data[name].setData(data);
+      // this.data[name].run(data, this.type, name);
+      // isChanged = ARRAYY_OPERATE['set'];
+    } else if ((this.type === 'object' || this.type === 'array') && name === undefined) {
+      console.warn(`DataUnit->setData, type = ${this.type}, data = ${data}, name = ${name}`);
     } else {
+      this.type = testType(data);
       this.data = data;
+      isChanged = ARRAYY_OPERATE['set'];
+    }
+
+    if (isChanged !== '') {
       this.pushList.map((item, index) => {
-        item.run && item.run(this.data, this.type, index);
+        console.warn('<<<<<<<', item);
+        item.run && item.run(this.data, this.type, index, ARRAYY_OPERATE['set']);
       });
     }
   }
@@ -74,18 +106,18 @@ class Arrayy extends DataUnit {
   constructor(data: Array<any>, pushFunc?: Function, pullFunc?: Function) {
     super(data);
     this.pushList = [];
-    this.pullList = [];
     this.pushFunc = pushFunc;
-    this.pullFunc = pullFunc;
-    console.log(data);
-    this.data = this.cpData(data);
+    this.cpData(data);
     console.log(this.data);
     this.type = 'array';
   }
 
   cpData(data: Array<any>): Array<DataUnit> {
+    console.warn('==============');
+    console.log(data);
     const _data = data.map((item, index) => dataFactory(item));
-    return _data;
+    console.log(_data);
+    this.data = _data;
   }
   /**
    * 插入
@@ -109,22 +141,51 @@ class Arrayy extends DataUnit {
 
   push() {
     this.data = this.splice(this.data.length, 0, ...arguments);
+    // this.data.map((item, index) => {
+    //   this.pushList.map((i) => {
+    //     i.run(item, this.type, this.data.length + index, ARRAYY_OPERATE['add']);
+    //   })
+    // });
   }
   pop() {
     const _data = this.difference(this.data.length, 1)
     this.data = _.difference(this.data, _data);
+    // this.data.map((item, index) => {
+    //   this.pushList.map((i) => {
+    //     i.run(item, this.type, this.data.length + 1, ARRAYY_OPERATE['rm']);
+    //   })
+    // });
     return _data;
   }
   unshift() {
     this.data = this.splice(0, 0, ...arguments);
+    // this.data.map((item, index) => {
+    //   this.pushList.map((i) => {
+    //     i.run(item, this.type, 0 + index, ARRAYY_OPERATE['add']);
+    //   })
+    // });
   }
   shift() {
     const _data = this.difference(0, 1)
     this.data = _.difference(this.data, _data);
+    // this.data.map((item, index) => {
+    //   this.pushList.map((i) => {
+    //     i.run(item, this.type, 0, ARRAYY_OPERATE['rm']);
+    //   })
+    // });
     return _data;
   }
   slice(index: number, len: number) {
-    return this.difference(index, len);
+    const data = this.difference(index, len);
+    // this.data.map((item, index) => {
+    //   this.pushList.map((i) => {
+    //     i.run(item, this.type, 0 + index, ARRAYY_OPERATE['add']);
+    //   })
+    // });
+    return data;
+  }
+  map() {
+    return this.data.map(...arguments);
   }
 
 }
@@ -140,9 +201,7 @@ class Objecty extends DataUnit {
   constructor(data: Array<any>, pushFunc?: Function, pullFunc?: Function) {
     super(data);
     this.pushList = [];
-    this.pullList = [];
     this.pushFunc = pushFunc;
-    this.pullFunc = pullFunc;
     this.data = this.cpData(data);
     this.type = 'object';
   }
@@ -156,12 +215,12 @@ class Objecty extends DataUnit {
   }
   getValues(...params) {
     const queue = [...params];
-    console.log(queue);
+    log(queue);
     const _data = {};
     queue.forEach(item => {
       _data[item] = this.outputData(item);
     });
-    console.log(_data);
+    log(_data);
     return _data;
   }
 
@@ -173,16 +232,25 @@ class Objecty extends DataUnit {
 
 function dataFactory(data) {
   const type = testType(data);
-  console.log(data, type);
+  log(data, type);
   if (type === 'array') {
     return new Arrayy(data);
   } else if (type === 'object') {
     return new Objecty(data);
   } else {
     const _data = new DataUnit(data);
-    console.log(_data);
+    log(_data);
     return _data;
   }
 }
 
-export { DataUnit, Arrayy, dataFactory };
+function checkNConvert(data) {
+  const type = testType(data);
+  if (type === 'object' || type === 'array') {
+    return dataFactory(data);
+  } else {
+    return data;
+  }
+}
+
+export { DataUnit, Arrayy, Objecty, dataFactory };

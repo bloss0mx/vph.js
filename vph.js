@@ -1,8 +1,8 @@
 import { testType, log } from './utils';
 import _ from 'lodash';
 import $ from 'jquery';
-import { DataUnit, Arrayy, dataFactory } from './DataUnit';
 import VirtualDom from './vdom';
+import { forDirective } from './directive';
 
 
 
@@ -24,6 +24,6 @@ export function span(init) {
   init.tag = 'span';
   return init;
 }
-export function makeVd(init) {
-  return init;
+export function For(init){
+  return forDirective(init);
 }

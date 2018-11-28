@@ -1,38 +1,49 @@
 import { testType, log } from './utils';
 import _ from 'lodash';
 import $ from 'jquery';
-import { DataUnit, Arrayy, dataFactory } from './DataUnit';
+import { DataUnit, Arrayy, Objecty, dataFactory } from './DataUnit';
 import { TextDom, PlainText, AttrObj } from './domObj';
 import { vdFactory } from './vph';
 import { IfDirective, forDirective } from './directive';
+import { ARRAYY_OPERATE } from './constant';
 
+/**
+ * 初始化时，dom操作必须同步
+ */
 export default class VirtualDom {
   constructor(init) {
+    this.init = init;
     this.name = init.name;
     this.tag = init.tag;
     this.attr = init.attr;
-    this.initDom();
     this.children = init.children;
-    // this.children = [];
     this.childrenPt = [];
-    this.ifDirective = init.ifDirective;
+    this.ifDirective = init.ifDirective || null;
+    this.forDirective = init.forDirective || null;
+    this.varibleName = init.varibleName ? init.varibleName : undefined;
+    this.baseDataName = init.baseDataName ? init.baseDataName : undefined;
+    // console.error(this.baseDataName);
     this.setFather(init.father, init.index);
 
-    this.store = init.store === undefined ? {} : init.store;
-    this.props = init.props === undefined ? {} : init.props;
-    init.state === undefined ? null : this.initState(init.state);
-
+    this.store = init.store === undefined ? {} : init.store;//本地store存储
+    this.props = init.props === undefined ? {} : init.props;//父节点传入store
     this.actions = init.actions;
+
+    this.forDirective ? this.setFatherDomAsDom() : this.initDom();
     this.bindActions();
-    // this.findOrigin();
-    this.makeChildren();
+    init.state === undefined ? null : this.initState(init.state);
+    if (!this.forDirective) this.makeChildren();
     if (init.whenInit !== undefined && typeof init.whenInit === 'function') {
-      init.whenInit.apply(this);
+      setTimeout(() => {
+        init.whenInit.apply(this);
+      }, 0);
     }
-    this.refreashAfterInit(init.state);
-    // this.findOrigin();
     this.attrPt = this.initAttr();
     this.ifDirectivePt = this.initIf();
+    this.forDirective ? this.forDirectivePt = this.initFor(init.forDirective, init) : null;
+  }
+  setFatherDomAsDom() {
+    this.dom = document.createDocumentFragment();
   }
   initDom() {
     log(this);
@@ -43,12 +54,7 @@ export default class VirtualDom {
     this.index = index;
   }
   initState(init) {
-    console.log('initState', init);
-    // if (testType(init) === 'object') {
-    //   for (let i in init) {
-    //     this.store[i] = dataFactory(init[i]);
-    //   }
-    // }
+    log('initState', init);
     this.store = dataFactory(init);
   }
   initIf() {
@@ -56,8 +62,19 @@ export default class VirtualDom {
     if (!ifDirective) {
       return;
     }
-    log('=================');
+    log('========  if  =========');
     return new IfDirective({ flagName: ifDirective, pt: this, store: this.store });
+  }
+  initFor() {
+    const _directive = this.forDirective;
+    if (!_directive) {
+      return;
+    }
+    this.forIndex = 0;//for指令的index
+    this.forDomPt = [];
+    log('========  for  =========');
+
+    return new forDirective({ directive: _directive, pt: this, store: this.store });
   }
   bindActions() {
     const actions = this.actions;
@@ -65,13 +82,6 @@ export default class VirtualDom {
       for (var i in actions) {
         this[i] = actions[i].bind(this);
       }
-    }
-  }
-  refreashAfterInit(state) {
-    for (let i in state) {
-      // console.log(this.store[i]);
-      this.store.outputData(i).setData(state[i]);
-      // this.attrPt[i] && this.attrPt[i].setData(this.store[i].outputData());
     }
   }
   initAttr() {
@@ -95,44 +105,44 @@ export default class VirtualDom {
         return item;
       } else if (testType(item) === 'string') {
         if (item.match(/\{\{[^\s]*\}\}/)) {
-          const textNode = new TextDom(item, this.store);
-          //
-          // this.children.push(textNode);
+          console.warn(this.baseDataName, index);
+          const textNode = new TextDom(item, this.store, this.varibleName || index, this.baseDataName);
           this.dom.appendChild(textNode.giveDom());
           return textNode;
         } else {
-          // const textNode = document.createTextNode(item);
-          // //
-          // this.children.push(textNode);
-          // this.dom.appendChild(textNode);
-          // return textNode;
           const textNode = new PlainText(item);
-          // this.children.push(textNode);
           this.dom.appendChild(textNode.giveDom());
           return textNode;
         }
       } else if (testType(item) === 'object') {
         const { store, ...other } = item;
         const node = vdFactory({
+          // baseDataName: this.baseDataName,
           store: this.store,
           father: this,
           index: index,
           ...other
         });
-        //
-        // this.children.push(node);
         this.dom.appendChild(node.giveDom());
         return node;
       }
     });
   }
-  findOrigin(name, node) {
-    log(name);
-    const found = this.store.outputData(name);
-    if (found !== undefined) {
-      console.log(name, found, this.store);
-      found.addPush(node);
-    }
+  makeForChildren(childInitMsg) {
+    const init = this.init;
+    delete init.ifDirective;
+    delete init.forDirective;
+    init.varibleName = childInitMsg.varibleName;
+    init.baseDataName = childInitMsg.baseDataName;
+    init.store = this.store;
+    init.props = this.props;
+    console.log(init);
+    const vdom = vdFactory(init);
+    log(vdom);
+    return {
+      tmpDom: vdom.giveDom(),
+      tmpChildrenPt: vdom,
+    };
   }
   run(data, type, index) {
     if (this.beforeRun !== undefined) {
@@ -143,34 +153,24 @@ export default class VirtualDom {
       this.afterRun();
     }
   }
-  ifDirectiveOperate(flag) {
-    if (flag) {
-      if (!this.dom) {
-        this.initDom();
-        this.makeChildren();
-        this.insertToAvilableBefore(this.giveDom());
-        this.attrPt = this.initAttr();
-      }
-    } else {
-      this.attrPt.map(item => {
-        item.rmSelf();
-      });
-      this.removeThis();
-    }
-  }
   giveDom() {
     return this.dom;
   }
   removeThis() {
+    this.childrenPt.map(item => {
+      item.rmSelf && item.rmSelf();
+    })
     $(this.dom).remove();
     this.dom = null;
   }
-  insertToAvilableBefore(dom) {
+  insertToAvilableBefore(dom, deviation) {
     const previousBrother = this.previousBrother();
+    console.error(previousBrother);
     if (previousBrother) {
       this.insertAfter(previousBrother, dom);
     } else {
       this.insertPre(dom);
+      console.error('>>>>>>>>');
     }
   }
   insertAfter(pt, dom) {
@@ -180,7 +180,7 @@ export default class VirtualDom {
     $(this.dom).prepend($(dom));
   }
   previousBrother() {
-    log('father', this.index, this.father.childrenPt);
+    console.warn('father', this.index, this.father);
     if (this.father) {
       for (var i = this.index - 1; i >= 0; i--) {
         if (this.father.childrenPt[i] && this.father.childrenPt[i].giveDom()) {

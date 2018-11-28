@@ -1,25 +1,30 @@
-import { vdFactory, div, p, span, makeVd } from './vph'
+import { vdFactory, div, p, span, For } from './vph'
 import { interval } from 'rxjs';
 import $ from 'jquery';
 import moment from 'moment';
 
 
-// var first = new DataUnit('hey');
-// var second = new DataUnit(0);
 
 // console.log(window.first.outputData());
 const component1 = vdFactory(
 	div({
 		children: [
 			'这是个组件：',
-			'{{value}}',
-			div({ children: ['那啥～～～～～～～～'], attr: ['style=color:{{color0}}'] }),
-			div({ children: ['那啥～～～～～～～～'], attr: ['style=color:{{color1}}'] }),
-			div({ children: ['那啥～～～～～～～～'], attr: ['style=color:{{color2}}'] }),
+			'{{value.index}}',
+			div({ children: ['{{color0}}'], attr: ['style=color:{{color0}}'] }),
+			div({ children: ['{{color1}}'], attr: ['style=color:{{color1}}'] }),
+			div({ children: ['{{color2}}'], attr: ['style=color:{{color2}}'] }),
 			div({
-				children: ['那啥～～～～～～～～'],
+				children: [
+					'{{color3}}',
+					div({
+						children: ['{{color3}}'],
+						attr: ['style=color:{{color3}}']
+					})
+				],
 				attr: ['style=color:{{color3}}'],
 				ifDirective: 'switcher',
+				key: 1,
 				// whenInit() {
 				// 	interval(1333).subscribe({
 				// 		next: item => {
@@ -28,13 +33,13 @@ const component1 = vdFactory(
 				// 	});
 				// }
 			}),
-			div({ children: ['那啥～～～～～～～～'], attr: ['style=color:{{color4}}'] }),
-			div({ children: ['那啥～～～～～～～～'], attr: ['style=color:{{color5}}'] }),
-			div({ children: ['那啥～～～～～～～～'], attr: ['style=color:{{color6}}'] }),
-			div({ children: ['那啥～～～～～～～～'], attr: ['style=color:{{color7}}'] }),
+			div({ children: ['{{color4}}'], attr: ['style=color:{{color4}}'] }),
+			div({ children: ['{{color5}}'], attr: ['style=color:{{color5}}'] }),
+			div({ children: ['{{color6}}'], attr: ['style=color:{{color6}}'] }),
+			div({ children: ['{{color7}}'], attr: ['style=color:{{color7}}'] }),
 		],
 		state: {
-			value: 0,
+			value: { index: 0 },
 			color: 'red',
 			color0: 'red',
 			color1: 'red',
@@ -54,15 +59,15 @@ const component1 = vdFactory(
 				const { value, color, color0, color1, color2, color3, color4, color5, color6, color7, switcher } = this.store.getValues('value', 'color', 'color0', 'color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'switcher');
 				interval(1000).subscribe({
 					next: item => {
-						value.setData(item);
+						value.outputData('index').setData(item);
 					}
 				});
-				interval(1000).subscribe({
+				interval(10000).subscribe({
 					next: item => {
-						switcher.setData(item % 333);
+						switcher.setData(item % 2);
 					}
 				})
-				interval(1000).subscribe({
+				interval(100).subscribe({
 					next: item => {
 						color7.setData(color6.outputData());
 						color6.setData(color5.outputData());
@@ -78,13 +83,13 @@ const component1 = vdFactory(
 			}
 		},
 		whenInit() {
-			this.interval();
+			// this.interval();
 		}
 	})
 );
 
 const time = vdFactory(
-	p({
+	div({
 		children: [
 			'现在时间：',
 			'{{time}}'
@@ -104,7 +109,7 @@ const time = vdFactory(
 			}
 		},
 		whenInit() {
-			this.interval();
+			// this.interval();
 		}
 	})
 );
@@ -124,11 +129,15 @@ window.vD1 = vdFactory(
 			}),
 			'这一坨是一：',
 			'{{first}}',
+			div({
+				children: ['{{x}}'],
+				forDirective: 'x in array1'
+			}),
 			time,
 		],
 		attr: [],
 		state: {
-			array1: ['aye'],
+			array1: ['array1', 'array2', 'array3'],
 			first: 0,
 			second: 0,
 			third: 3,
@@ -136,9 +145,11 @@ window.vD1 = vdFactory(
 		actions: {
 			start() {
 				const { array1 } = this.store.getValues('array1');
-				setTimeout(() => {
+				setInterval(() => {
 					// console.log(array1.outputData(0));
-				}, 200);
+					console.log(array1);
+					array1.setData(Math.floor(Math.random() * 100), 1);
+				}, 5000);
 			},
 			interval() {
 				const { second, first, third } = this.store.getValues('second', 'first', 'third');
@@ -157,7 +168,7 @@ window.vD1 = vdFactory(
 		},
 		whenInit() {
 			console.log(this);
-			this.interval();
+			// this.interval();
 			this.start();
 		}
 	})

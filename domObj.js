@@ -1,16 +1,26 @@
 import { testType, log } from './utils';
 import _ from 'lodash';
 import $ from 'jquery';
-import { DataUnit, Arrayy, dataFactory } from './DataUnit';
+import { exposeToWindow } from './Lady_tool';
 
 class TextDom {
-  constructor(name, store) {
+  constructor(name, store, index, baseDataName) {
     this.name = name;
+    this.template = name;
+    this.baseDataName = baseDataName;
     this.dom = document.createTextNode(name);
     this.store = store === undefined ? {} : store;
-    this.findOrigin(name.replace(/\{|\}/g, ''), this.dom);
+    console.log(baseDataName);
+    if (baseDataName !== undefined) {
+      if (index === undefined) {
+        throw ('TextDom no index with baseDataName!');
+      }
+      this.findOrigin(`${baseDataName}.${index}`, this.dom);
+    } else {
+      this.findOrigin(name.replace(/\{|\}/g, ''), this.dom);
+    }
   }
-  findOrigin(name, node) {
+  findOrigin(name, node, index) {
     log(this.store);
     const found = this.store.outputData(name);
     if (found !== undefined) {
@@ -19,10 +29,26 @@ class TextDom {
     }
   }
   run(data, type, index) {
+    if (this.name === '{{x}}') {
+      console.warn('>>>>');
+    }
     this.dom.textContent = data;
   }
   giveDom() {
+    if (this.name === '{{x}}')
+      exposeToWindow(Math.floor(Math.random() * 100), this.dom);
     return this.dom;
+  }
+  rmSelf() {
+    const valueName = this.template.match(/\{\{[^\s]+\}\}/);
+    if (valueName[0]) {
+      const value = valueName[0] && valueName[0].replace(/\{|\}/g, '');
+      const found = this.store.outputData(value);
+      if (found !== undefined) {
+        found.rmPush(this);
+      }
+    }
+    this.dom = null;
   }
 }
 
@@ -33,6 +59,7 @@ class PlainText {
   giveDom() {
     return this.dom;
   }
+  rmSelf() { }
 }
 
 class AttrObj {
