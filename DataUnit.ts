@@ -39,7 +39,6 @@ class DataUnit {
     // log('====>', index, this.data);
     if (index && testType(index) === 'string' && index.split('.').length > 1) {
       return [this.data, ...index.split('.')].reduce((t, i) => {
-        console.log(t, i);
         return t.outputData ? t.outputData(i) : t[i];
       });
     }
@@ -61,8 +60,7 @@ class DataUnit {
   }
   setData(data, name?: (number | string)) {
 
-    console.warn('========  setData  ========')
-    console.log(name, this.data);
+    // console.warn('========  setData  ========')
 
     let isChanged = '';
 
@@ -71,13 +69,11 @@ class DataUnit {
       // this.data[name].run(data, this.type, name);
       // isChanged = ARRAYY_OPERATE['set'];
     } else if (this.type === 'array' && name !== undefined) {
-      console.log(name, data, this.data, this.outputData(name));
       this.outputData(name).setData(data);
       // this.data[name].setData(data);
       // this.data[name].run(data, this.type, name);
       // isChanged = ARRAYY_OPERATE['set'];
     } else if ((this.type === 'object' || this.type === 'array') && name === undefined) {
-      console.warn(`DataUnit->setData, type = ${this.type}, data = ${data}, name = ${name}`);
     } else {
       this.type = testType(data);
       this.data = data;
@@ -86,7 +82,6 @@ class DataUnit {
 
     if (isChanged !== '') {
       this.pushList.map((item, index) => {
-        console.warn('<<<<<<<', item);
         item.run && item.run(this.data, this.type, index, ARRAYY_OPERATE['set']);
       });
     }
@@ -108,15 +103,11 @@ class Arrayy extends DataUnit {
     this.pushList = [];
     this.pushFunc = pushFunc;
     this.cpData(data);
-    console.log(this.data);
     this.type = 'array';
   }
 
   cpData(data: Array<any>): Array<DataUnit> {
-    console.warn('==============');
-    console.log(data);
     const _data = data.map((item, index) => dataFactory(item));
-    console.log(_data);
     this.data = _data;
   }
   /**
@@ -215,12 +206,10 @@ class Objecty extends DataUnit {
   }
   getValues(...params) {
     const queue = [...params];
-    log(queue);
     const _data = {};
     queue.forEach(item => {
       _data[item] = this.outputData(item);
     });
-    log(_data);
     return _data;
   }
 
@@ -232,14 +221,12 @@ class Objecty extends DataUnit {
 
 function dataFactory(data) {
   const type = testType(data);
-  log(data, type);
   if (type === 'array') {
     return new Arrayy(data);
   } else if (type === 'object') {
     return new Objecty(data);
   } else {
     const _data = new DataUnit(data);
-    log(_data);
     return _data;
   }
 }

@@ -44,8 +44,6 @@ class IfDirective {
 class forDirective {
   constructor(init) {
     this.store = init.store;
-    console.log('hey here\'s forDirective store!');
-    console.log(this.store);
     this.pt = init.pt;
     this.childrenPt = [];
     this.childrenDom = [];
@@ -61,7 +59,6 @@ class forDirective {
     this.baseDataName = handled[1];
 
     const found = this.store.outputData(this.baseDataName);
-    console.log(found);
     if (found !== undefined) {
       found.addPush(this);
       this.init();
@@ -72,7 +69,6 @@ class forDirective {
       .map((item, index) => {
         return item;
       });
-    console.log(childrenStore);
     childrenStore.map((item, index) => {
       const { tmpDom, tmpChildrenPt } = this.pt.makeForChildren({
         varibleName: index,
@@ -83,12 +79,10 @@ class forDirective {
       // this.pt.insertToAvilableBefore(tmpDom, index);
 
       this.pt.childrenPt.push(tmpChildrenPt);
-      console.log(tmpChildrenPt);
       item.addPush(tmpChildrenPt);
       this.childrenDom.push(tmpDom);
       this.childrenPt.push(tmpChildrenPt);
     });
-    console.log(this.store);
   }
   run(data, type, index, operate) {
     log('=========');
@@ -97,7 +91,6 @@ class forDirective {
     this.forDirectiveOperate(data, index, operate);
   }
   forDirectiveOperate(data, index, operate) {
-    console.log(data);
   }
 }
 
@@ -128,9 +121,7 @@ function setDataArrayy() {
  * @param {*} operate 
  */
 function forDirectiveOperate(data, index, operate) {
-  console.log('=========>', data, index, operate);
   if (operate === ARRAYY_OPERATE['add']) {
-    console.log('add ~', data);
     if (this.pt.forDomPt.length === 0) {
       const { tmpDom, tmpChildrenPt } = this.pt.makeForChildren();
       this.pt.insertToAvilableBefore(tmpDom);
@@ -145,7 +136,6 @@ function forDirectiveOperate(data, index, operate) {
       // 列表to do 注册attr
     }
   } else if (operate === ARRAYY_OPERATE['set']) {
-    console.log('hey ', this.pt.forDomPt);
   } else if (operate === ARRAYY_OPERATE['rm']) {
   }
 }

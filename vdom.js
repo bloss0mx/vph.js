@@ -22,7 +22,6 @@ export default class VirtualDom {
     this.forDirective = init.forDirective || null;
     this.varibleName = init.varibleName ? init.varibleName : undefined;
     this.baseDataName = init.baseDataName ? init.baseDataName : undefined;
-    // console.error(this.baseDataName);
     this.setFather(init.father, init.index);
 
     this.store = init.store === undefined ? {} : init.store;//本地store存储
@@ -105,7 +104,6 @@ export default class VirtualDom {
         return item;
       } else if (testType(item) === 'string') {
         if (item.match(/\{\{[^\s]*\}\}/)) {
-          console.warn(this.baseDataName, index);
           const textNode = new TextDom(item, this.store, this.varibleName || index, this.baseDataName);
           this.dom.appendChild(textNode.giveDom());
           return textNode;
@@ -136,7 +134,6 @@ export default class VirtualDom {
     init.baseDataName = childInitMsg.baseDataName;
     init.store = this.store;
     init.props = this.props;
-    console.log(init);
     const vdom = vdFactory(init);
     log(vdom);
     return {
@@ -165,12 +162,10 @@ export default class VirtualDom {
   }
   insertToAvilableBefore(dom, deviation) {
     const previousBrother = this.previousBrother();
-    console.error(previousBrother);
     if (previousBrother) {
       this.insertAfter(previousBrother, dom);
     } else {
       this.insertPre(dom);
-      console.error('>>>>>>>>');
     }
   }
   insertAfter(pt, dom) {
@@ -180,7 +175,6 @@ export default class VirtualDom {
     $(this.dom).prepend($(dom));
   }
   previousBrother() {
-    console.warn('father', this.index, this.father);
     if (this.father) {
       for (var i = this.index - 1; i >= 0; i--) {
         if (this.father.childrenPt[i] && this.father.childrenPt[i].giveDom()) {

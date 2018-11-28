@@ -13,7 +13,6 @@ const fetchFromWindow = (name) => {
     return window.expose;
   }
   if (window.expose[name] === undefined) {
-    console.warn(`${name} is undefined!`);
   }
   return window.expose[name];
 }

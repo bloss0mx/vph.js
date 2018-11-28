@@ -5,7 +5,6 @@ import moment from 'moment';
 
 
 
-// console.log(window.first.outputData());
 const component1 = vdFactory(
 	div({
 		children: [
@@ -83,7 +82,7 @@ const component1 = vdFactory(
 			}
 		},
 		whenInit() {
-			// this.interval();
+			this.interval();
 		}
 	})
 );
@@ -109,7 +108,7 @@ const time = vdFactory(
 			}
 		},
 		whenInit() {
-			// this.interval();
+			this.interval();
 		}
 	})
 );
@@ -146,10 +145,8 @@ window.vD1 = vdFactory(
 			start() {
 				const { array1 } = this.store.getValues('array1');
 				setInterval(() => {
-					// console.log(array1.outputData(0));
-					console.log(array1);
 					array1.setData(Math.floor(Math.random() * 100), 1);
-				}, 5000);
+				}, 2000);
 			},
 			interval() {
 				const { second, first, third } = this.store.getValues('second', 'first', 'third');
@@ -167,8 +164,7 @@ window.vD1 = vdFactory(
 			}
 		},
 		whenInit() {
-			console.log(this);
-			// this.interval();
+			this.interval();
 			this.start();
 		}
 	})
@@ -176,8 +172,6 @@ window.vD1 = vdFactory(
 // vD1.store = { first: window.first };
 const dom = vD1.giveDom();
 
-// console.log(window.vD1);
-// console.log(dom);
 
 
 setTimeout(() => {
@@ -190,6 +184,5 @@ setTimeout(() => {
 // interval(1000).subscribe({
 // 	next: item => {
 // 		window.vD1.store.first.setData(item + 1);
-// 		// console.log('++');
 // 	}
 // });

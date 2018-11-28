@@ -10,7 +10,6 @@ class TextDom {
     this.baseDataName = baseDataName;
     this.dom = document.createTextNode(name);
     this.store = store === undefined ? {} : store;
-    console.log(baseDataName);
     if (baseDataName !== undefined) {
       if (index === undefined) {
         throw ('TextDom no index with baseDataName!');
@@ -24,13 +23,11 @@ class TextDom {
     log(this.store);
     const found = this.store.outputData(name);
     if (found !== undefined) {
-      console.log(found, name, this.store);
       found.addPush(this);
     }
   }
   run(data, type, index) {
     if (this.name === '{{x}}') {
-      console.warn('>>>>');
     }
     this.dom.textContent = data;
   }
