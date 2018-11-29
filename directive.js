@@ -98,8 +98,37 @@ class forDirective {
     log(this.store);
     this.forDirectiveOperate(data, index, operate);
   }
+  addToList(data, index) {
+    const targetIndex = index - 1;
+    const childrenStore = this.store.outputData(this.baseDataName + '.' + (targetIndex));
+    const { tmpDom, tmpChildrenPt } = this.pt.makeForChildren({
+      varibleName: targetIndex,
+      baseDataName: this.baseDataName,
+    });
+
+    if (this.childrenDom[targetIndex - 1]) {
+      $(tmpDom).insertAfter(this.childrenDom[targetIndex - 1]);
+    } else {
+      this.pt.insertToAvilableBefore(tmpDom);
+    }
+
+    this.pt.childrenPt.splice(index, 0, tmpChildrenPt);
+    childrenStore.addPush(tmpChildrenPt);
+    this.childrenDom.splice(index, 0, tmpDom);
+    this.childrenPt.splice(index, 0, tmpChildrenPt);
+  }
+  rmFromList(data, index) {
+    this.childrenPt[index].rmSelf();
+    this.childrenPt.splice(index, 1);
+    $(this.childrenDom[index]).remove();
+    this.childrenDom.splice(index, 1);
+  }
   forDirectiveOperate(data, index, operate) {
   }
+}
+
+class onDirective{
+  
 }
 
 export { IfDirective, forDirective };

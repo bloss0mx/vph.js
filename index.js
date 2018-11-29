@@ -10,32 +10,25 @@ const component1 = vdFactory(
 		children: [
 			'这是个组件：',
 			'{{value.index}}',
-			div({ children: ['{{color0}}'], attr: ['style=color:{{color0}}'] }),
-			div({ children: ['{{color1}}'], attr: ['style=color:{{color1}}'] }),
-			div({ children: ['{{color2}}'], attr: ['style=color:{{color2}}'] }),
+			...(() => {
+				let arrays = [];
+				for (let i = 0; i < 8; i++) {
+					arrays.push(div({ children: [`{{color${i}}}`], attr: [`style=color:{{color${i}}}`] }));
+				}
+				return arrays;
+			})(),
 			div({
 				children: [
-					'{{color3}}',
+					'{{color7}}',
 					div({
-						children: ['{{color3}}'],
-						attr: ['style=color:{{color3}}']
+						children: ['{{color7}}'],
+						attr: ['style=color:{{color7}}']
 					})
 				],
-				attr: ['style=color:{{color3}}'],
+				attr: ['style=color:{{color7}}'],
 				ifDirective: 'switcher',
 				key: 1,
-				// whenInit() {
-				// 	interval(1333).subscribe({
-				// 		next: item => {
-				// 			this.ifDirective(item % 2);
-				// 		}
-				// 	});
-				// }
 			}),
-			div({ children: ['{{color4}}'], attr: ['style=color:{{color4}}'] }),
-			div({ children: ['{{color5}}'], attr: ['style=color:{{color5}}'] }),
-			div({ children: ['{{color6}}'], attr: ['style=color:{{color6}}'] }),
-			div({ children: ['{{color7}}'], attr: ['style=color:{{color7}}'] }),
 		],
 		state: {
 			value: { index: 0 },
@@ -63,7 +56,7 @@ const component1 = vdFactory(
 				});
 				interval(100).subscribe({
 					next: item => {
-						switcher.setData(item % 2);
+						switcher.setData(item % 100);
 					}
 				})
 				interval(100).subscribe({
@@ -129,14 +122,14 @@ window.vD1 = vdFactory(
 			'这一坨是一：',
 			'{{first}}',
 			div({
-				children: ['=>', '{{x}}', '后面也框起来'],
+				children: ['=> ', '{{x}}', ' 后面也框起来'],
 				forDirective: 'x in array1'
 			}),
 			time,
 		],
 		attr: [],
 		state: {
-			array1: ['array1', 'array2', 'array3', 'array4', 'array5'],
+			array1: [0, 0, 0, 0],
 			first: 0,
 			second: 0,
 			third: 3,
@@ -144,9 +137,12 @@ window.vD1 = vdFactory(
 		actions: {
 			start() {
 				const { array1 } = this.store.getValues('array1');
-				setInterval(() => {
-					array1.setData(Math.floor(Math.random() * 100), 1);
-				}, 100);
+				interval(1000).subscribe({
+					next: item => {
+						array1.push(item);
+						array1.shift();
+					}
+				})
 			},
 			interval() {
 				const { second, first, third } = this.store.getValues('second', 'first', 'third');

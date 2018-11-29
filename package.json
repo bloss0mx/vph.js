@@ -15,7 +15,7 @@
     },
     "dependencies": {
         "deep-object-diff": "^1.1.0",
-        "jquery": "1.12",
+        "jquery": "^1.12",
         "lodash": "^4.17.11",
         "moment": "^2.22.2",
         "rxjs": "^6.3.3"

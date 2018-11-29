@@ -29,10 +29,10 @@ export default class VirtualDom {
     this.props = init.props === undefined ? {} : init.props;//父节点传入store
     this.actions = init.actions;
 
-    this.forDirective ? this.setFatherDomAsDom() : this.initDom();
+    this.forDirective ? this.initForDom() : this.initDom();
     this.bindActions();
     init.state === undefined ? null : this.initState(init.state);
-    if (!this.forDirective) this.makeChildren();
+    !init.forDirective && this.makeChildren();
     if (init.whenInit !== undefined && typeof init.whenInit === 'function') {
       setTimeout(() => {
         init.whenInit.apply(this);
@@ -42,27 +42,40 @@ export default class VirtualDom {
     this.ifDirectivePt = this.initIf();
     this.forDirective ? this.forDirectivePt = this.initFor(init.forDirective, init) : null;
   }
-  setFatherDomAsDom() {
+  /**
+   * 初始化dom
+   */
+  initForDom() {
     this.dom = document.createDocumentFragment();
   }
   initDom() {
     log(this);
     this.dom = document.createElement(this.tag);
   }
+  /**
+   * 设置父节点和index
+   * @param {*} father 
+   * @param {*} index 
+   */
   setFather(father, index) {
     this.father = father;
     this.index = index;
   }
+  /**
+   * 初始化state
+   * @param {*} init 
+   */
   initState(init) {
-    log('initState', init);
     this.store = dataFactory(init);
   }
+  /**
+   * 初始化指令
+   */
   initIf() {
     const ifDirective = this.ifDirective;
     if (!ifDirective) {
       return;
     }
-    log('========  if  =========');
     return new IfDirective({ flagName: ifDirective, pt: this, store: this.store });
   }
   initFor() {
@@ -72,10 +85,11 @@ export default class VirtualDom {
     }
     this.forIndex = 0;//for指令的index
     this.forDomPt = [];
-    log('========  for  =========');
-
     return new forDirective({ directive: _directive, pt: this, store: this.store });
   }
+  /**
+   * 绑定action
+   */
   bindActions() {
     const actions = this.actions;
     if (actions !== undefined) {
@@ -84,17 +98,22 @@ export default class VirtualDom {
       }
     }
   }
+  /**
+   * 初始化属性
+   */
   initAttr() {
     const attrArray = this.attr;
     if (!attrArray) {
       return [];
     }
-    log(attrArray);
     return attrArray.map((item, index) => {
       log(this.store);
       return new AttrObj({ attr: item, dom: this.dom, store: this.store });
     });
   }
+  /**
+   * 初始化子节点
+   */
   makeChildren() {
     this.childrenPt = this.children.map((item, index) => {
       if (item && item.__proto__.constructor === VirtualDom) {
@@ -130,6 +149,10 @@ export default class VirtualDom {
       }
     });
   }
+  /**
+   * for指令初始化子节点
+   * @param {*} childInitMsg 
+   */
   makeForChildren(childInitMsg) {
     const init = this.init;
     delete init.ifDirective;
@@ -144,24 +167,31 @@ export default class VirtualDom {
       tmpChildrenPt: vdom,
     };
   }
-  run(data, type, index) {
-    if (this.beforeRun !== undefined) {
-      this.beforeRun();
-    }
-    log('I got push: ', data);
-    if (this.afterRun !== undefined) {
-      this.afterRun();
-    }
-  }
+  // run(data, type, index) {
+  //   if (this.beforeRun !== undefined) {
+  //     this.beforeRun();
+  //   }
+  //   log('I got push: ', data);
+  //   if (this.afterRun !== undefined) {
+  //     this.afterRun();
+  //   }
+  // }
+  /**
+   * 输出dom
+   */
   giveDom() {
     return this.dom;
   }
-  rmSelf(trace) {
+  /**
+   * 删除自己
+   * @param {*}  
+   */
+  rmSelf() {
     this.childrenPt.map(item => {
-      item.rmSelf && item.rmSelf(trace);
+      item.rmSelf && item.rmSelf();
     });
     this.attrPt.map(item => {
-      item.rmSelf && item.rmSelf(trace);
+      item.rmSelf && item.rmSelf();
     });
     // if (this.childrenPt) {
     //   console.log(this.childrenPt);
@@ -173,6 +203,11 @@ export default class VirtualDom {
     $(this.dom).remove();
     this.dom = null;
   }
+  /**
+   * 在上一个节点以后插入dom
+   * @param {*} dom 
+   * @param {*} deviation 
+   */
   insertToAvilableBefore(dom, deviation) {
     const previousBrother = this.previousBrother();
     if (previousBrother) {
@@ -181,12 +216,24 @@ export default class VirtualDom {
       this.insertPre(dom);
     }
   }
+  /**
+   * 向后插入
+   * @param {*} pt 
+   * @param {*} dom 
+   */
   insertAfter(pt, dom) {
     $(dom).insertAfter($(pt));
   }
+  /**
+   * 向前插入
+   * @param {*} dom 
+   */
   insertPre(dom) {
     $(this.dom).prepend($(dom));
   }
+  /**
+   * 查找前一个兄弟节点
+   */
   previousBrother() {
     if (this.father) {
       for (var i = this.index - 1; i >= 0; i--) {
@@ -197,6 +244,9 @@ export default class VirtualDom {
       }
     }
   }
+  /**
+   * 查找下一个兄弟节点
+   */
   nextBrother() {
     if (this.father) {
       for (var i = this.index + 1; i < this.father.childrenPt.length; i++) {

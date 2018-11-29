@@ -3,6 +3,7 @@ import _ from 'lodash';
 import {
   ARRAYY_OPERATE,
 } from './constant';
+import { forDirective } from './directive';
 
 class DataUnit {
   protected data: any;
@@ -19,10 +20,12 @@ class DataUnit {
       return;
     }
     setTimeout(() => {
-      this.pushList.map((item, index) => {
-        this.data = data;
-        item.run && item.run(data, this.type, index, ARRAYY_OPERATE['add']);
-      });
+      if (this.pushList) {
+        this.pushList.map((item, index) => {
+          this.data = data;
+          item.run && item.run(data, this.type, index, ARRAYY_OPERATE['add']);
+        });
+      }
     }, 0);
   }
 
@@ -58,7 +61,7 @@ class DataUnit {
       return this.data;
     }
   }
-  setData(data, name?: (number | string)) {
+  setData(data, name?: (number | string)): DataUnit {
 
     // console.warn('========  setData  ========')
 
@@ -85,8 +88,9 @@ class DataUnit {
         item.run && item.run(this.data, this.type, index, ARRAYY_OPERATE['set']);
       });
     }
+    return this;
   }
-  deleteSelf() {
+  rmSelf() {
     for (let i in this) {
       this[i] = null;
     }
@@ -95,6 +99,7 @@ class DataUnit {
 
 class Arrayy extends DataUnit {
   protected data: Array<any>;
+  protected pushList: Array<forDirective>;
   private pushFunc: Function;
   private pullFunc: Function;
 
@@ -116,9 +121,10 @@ class Arrayy extends DataUnit {
    * @param len 长度
    * @param data 新内容
    */
-  splice(index: number, len: number, ...data) {
-    const newData = this.cpData(data);
-    return this.data.splice(index, len, newData);
+  splice(index: number, len: number, data) {
+    const newData = dataFactory(data);
+    this.data.splice(index, len, newData);
+    return newData;
   }
   /**
    * 截取
@@ -126,57 +132,70 @@ class Arrayy extends DataUnit {
    * @param len 长度
    */
   private difference(index: number, len: number) {
-    const newData = this.data.slice(index, len);
+    const newData = this.data.splice(index, len);
     return newData;
   }
 
-  push() {
-    this.data = this.splice(this.data.length, 0, ...arguments);
-    // this.data.map((item, index) => {
-    //   this.pushList.map((i) => {
-    //     i.run(item, this.type, this.data.length + index, ARRAYY_OPERATE['add']);
-    //   })
-    // });
+  /**
+   * 添加时推送
+   * @param newData 
+   * @param index 
+   */
+  addCallback(newData, index) {
+    this.pushList.map((item) => {
+      item.addToList(newData, index);
+    });
+  }
+  /**
+   * 删除时推送
+   * @param _data 
+   * @param index 
+   */
+  rmCallback(_data, index) {
+    _data.map(item => {
+      item.rmSelf();
+    });
+    this.pushList.map((item) => {
+      item.rmFromList(_data, index);
+    });
+  }
+
+  push(tmp): Arrayy {
+    const newData = this.splice(this.data.length, 0, tmp);
+    this.addCallback(newData, this.data.length);
+    return this;
   }
   pop() {
     const _data = this.difference(this.data.length, 1)
     this.data = _.difference(this.data, _data);
-    // this.data.map((item, index) => {
-    //   this.pushList.map((i) => {
-    //     i.run(item, this.type, this.data.length + 1, ARRAYY_OPERATE['rm']);
-    //   })
-    // });
+    this.rmCallback(_data, this.data.length);
     return _data;
   }
-  unshift() {
-    this.data = this.splice(0, 0, ...arguments);
-    // this.data.map((item, index) => {
-    //   this.pushList.map((i) => {
-    //     i.run(item, this.type, 0 + index, ARRAYY_OPERATE['add']);
-    //   })
-    // });
+  unshift(tmp): Arrayy {
+    const newData = this.splice(0, 0, tmp);
+    this.addCallback(newData, 0);
+    return this;
   }
   shift() {
-    const _data = this.difference(0, 1)
+    if (this.data.length === 0) return;
+    const _data = this.difference(0, 1);
     this.data = _.difference(this.data, _data);
-    // this.data.map((item, index) => {
-    //   this.pushList.map((i) => {
-    //     i.run(item, this.type, 0, ARRAYY_OPERATE['rm']);
-    //   })
-    // });
+    this.rmCallback(_data, 0);
     return _data;
   }
-  slice(index: number, len: number) {
-    const data = this.difference(index, len);
-    // this.data.map((item, index) => {
-    //   this.pushList.map((i) => {
-    //     i.run(item, this.type, 0 + index, ARRAYY_OPERATE['add']);
-    //   })
-    // });
-    return data;
+  insertTo(tmp, index) {
+    const newData = this.splice(index, 0, tmp);
+    this.addCallback(newData, index);
+    return this;
   }
-  map() {
-    return this.data.map(...arguments);
+  rmFrom(index) {
+    const _data = this.difference(index, 1)
+    this.data = _.difference(this.data, _data);
+    this.rmCallback(_data, index);
+    return _data
+  }
+  map(callback) {
+    return this.data.map(callback);
   }
 
 }
