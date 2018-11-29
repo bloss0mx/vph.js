@@ -20,7 +20,6 @@ class TextDom {
     }
   }
   findOrigin(name, node, index) {
-    log(this.store);
     const found = this.store.outputData(name);
     if (found !== undefined) {
       found.addPush(this);
@@ -80,7 +79,7 @@ class AttrObj {
       }
     }
   }
-  rmSelf() {
+  rmSelf(trace) {
     const valueName = this.template.match(/\{\{[^\s]+\}\}/);
     if (valueName[0]) {
       const value = valueName[0] && valueName[0].replace(/\{|\}/g, '');

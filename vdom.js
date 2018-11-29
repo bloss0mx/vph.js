@@ -16,12 +16,13 @@ export default class VirtualDom {
     this.name = init.name;
     this.tag = init.tag;
     this.attr = init.attr;
+    this.attrPt = [];
     this.children = init.children;
     this.childrenPt = [];
     this.ifDirective = init.ifDirective || null;
     this.forDirective = init.forDirective || null;
-    this.varibleName = init.varibleName ? init.varibleName : undefined;
-    this.baseDataName = init.baseDataName ? init.baseDataName : undefined;
+    this.varibleName = init.varibleName !== undefined ? init.varibleName : undefined;
+    this.baseDataName = init.baseDataName !== undefined ? init.baseDataName : undefined;
     this.setFather(init.father, init.index);
 
     this.store = init.store === undefined ? {} : init.store;//本地store存储
@@ -95,7 +96,6 @@ export default class VirtualDom {
     });
   }
   makeChildren() {
-    log(this.children);
     this.childrenPt = this.children.map((item, index) => {
       if (item && item.__proto__.constructor === VirtualDom) {
         item.setFather(this, index);
@@ -104,7 +104,11 @@ export default class VirtualDom {
         return item;
       } else if (testType(item) === 'string') {
         if (item.match(/\{\{[^\s]*\}\}/)) {
-          const textNode = new TextDom(item, this.store, this.varibleName || index, this.baseDataName);
+          const textNode = new TextDom(item,
+            this.store,
+            this.varibleName !== undefined ? this.varibleName : index,
+            this.baseDataName
+          );
           this.dom.appendChild(textNode.giveDom());
           return textNode;
         } else {
@@ -135,7 +139,6 @@ export default class VirtualDom {
     init.store = this.store;
     init.props = this.props;
     const vdom = vdFactory(init);
-    log(vdom);
     return {
       tmpDom: vdom.giveDom(),
       tmpChildrenPt: vdom,
@@ -153,10 +156,20 @@ export default class VirtualDom {
   giveDom() {
     return this.dom;
   }
-  removeThis() {
+  rmSelf(trace) {
     this.childrenPt.map(item => {
-      item.rmSelf && item.rmSelf();
-    })
+      item.rmSelf && item.rmSelf(trace);
+    });
+    this.attrPt.map(item => {
+      item.rmSelf && item.rmSelf(trace);
+    });
+    // if (this.childrenPt) {
+    //   console.log(this.childrenPt);
+    //   for (let i = 0; i < this.childrenPt.length; i++) {
+    //     this.childrenPt[i].rmSelf && this.childrenPt[i].rmSelf();
+    //     this.childrenPt = null;
+    //   }
+    // }
     $(this.dom).remove();
     this.dom = null;
   }

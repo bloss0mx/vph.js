@@ -56,12 +56,12 @@ const component1 = vdFactory(
 		actions: {
 			interval() {
 				const { value, color, color0, color1, color2, color3, color4, color5, color6, color7, switcher } = this.store.getValues('value', 'color', 'color0', 'color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'switcher');
-				interval(1000).subscribe({
+				interval(100).subscribe({
 					next: item => {
 						value.outputData('index').setData(item);
 					}
 				});
-				interval(10000).subscribe({
+				interval(100).subscribe({
 					next: item => {
 						switcher.setData(item % 2);
 					}
@@ -129,14 +129,14 @@ window.vD1 = vdFactory(
 			'这一坨是一：',
 			'{{first}}',
 			div({
-				children: ['{{x}}'],
+				children: ['=>', '{{x}}', '后面也框起来'],
 				forDirective: 'x in array1'
 			}),
 			time,
 		],
 		attr: [],
 		state: {
-			array1: ['array1', 'array2', 'array3'],
+			array1: ['array1', 'array2', 'array3', 'array4', 'array5'],
 			first: 0,
 			second: 0,
 			third: 3,
@@ -146,17 +146,17 @@ window.vD1 = vdFactory(
 				const { array1 } = this.store.getValues('array1');
 				setInterval(() => {
 					array1.setData(Math.floor(Math.random() * 100), 1);
-				}, 2000);
+				}, 100);
 			},
 			interval() {
 				const { second, first, third } = this.store.getValues('second', 'first', 'third');
-				interval(1000).subscribe({
+				interval(100).subscribe({
 					next: item => {
 						first.setData(item);
 						third.setData(item + 3);
 					}
 				});
-				interval(1000).subscribe({
+				interval(100).subscribe({
 					next: item => {
 						second.setData(item * 2);
 					}

@@ -25,6 +25,12 @@ class IfDirective {
     // log(data);
     this.ifDirectiveOperate(data == this.key);
   }
+  // deletePt() {
+  //   const found = this.store.outputData(name);
+  //   if (found !== undefined) {
+  //     found.rmPush(this);
+  //   }
+  // }
   ifDirectiveOperate(flag) {
     if (flag) {
       if (!this.pt.dom) {
@@ -34,10 +40,12 @@ class IfDirective {
         this.pt.attrPt = this.pt.initAttr();
       }
     } else {
-      this.pt.attrPt.map(item => {
-        item.rmSelf();
-      });
-      this.pt.removeThis();
+      // this.pt.attrPt.map(item => {
+      //   item.rmSelf('hey');
+      // });
+      // this.pt.rmSelf();
+      this.pt.rmSelf('how');
+      // this.deletePt();
     }
   }
 }
