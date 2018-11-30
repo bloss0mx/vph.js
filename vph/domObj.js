@@ -14,7 +14,7 @@ class TextDom {
       if (index === undefined) {
         throw ('TextDom no index with baseDataName!');
       }
-      this.findOrigin(`${baseDataName}.${index}`, this.dom);
+      this.findOrigin(`${index}`, this.dom);
     } else {
       this.findOrigin(name.replace(/\{|\}/g, ''), this.dom);
     }

@@ -42,14 +42,17 @@ window.vD1 = vdFactory(
 				children: ['yo~'],
 				onDirective: 'click.addToList',
 			}),
-			// div({
-			// children: [
-			li({
-				children: ['{{x}}'],
-				forDirective: 'x in todoList'
+			ul({
+				children: [
+					li({
+						children:['asdf']
+					}),
+					li({
+						children: ['{{x}}'],
+						forDirective: 'x in todoList'
+					}),
+				]
 			}),
-			// ]
-			// })
 		],
 		attr: [],
 		state: {
