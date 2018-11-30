@@ -28,7 +28,6 @@ export default class VirtualDom {
 
     this.store = init.store === undefined ? {} : init.store;//本地store存储
     this.store = init.forStore === undefined ? this.store : init.forStore;
-    console.log(this.store);
     this.props = init.props === undefined ? {} : init.props;//父节点传入store
     this.actions = init.actions;
 
@@ -53,7 +52,6 @@ export default class VirtualDom {
     this.dom = document.createDocumentFragment();
   }
   initDom() {
-    log(this);
     this.dom = document.createElement(this.tag);
   }
   /**
@@ -116,7 +114,6 @@ export default class VirtualDom {
       return [];
     }
     return attrArray.map((item, index) => {
-      log(this.store);
       return new AttrObj({ attr: item, dom: this.dom, store: this.store });
     });
   }
@@ -127,7 +124,6 @@ export default class VirtualDom {
     this.childrenPt = this.children === undefined ? [] : this.children.map((item, index) => {
       if (item && item.__proto__.constructor === VirtualDom) {
         item.setFather(this, index);
-        log('this is a Component');
         this.dom.appendChild(item.giveDom());
         return item;
       } else if (testType(item) === 'string') {
@@ -163,7 +159,6 @@ export default class VirtualDom {
    * @param {*} childInitMsg 
    */
   makeForChildren(childInitMsg) {
-    console.log(this.childrenPt);
     const init = this.init;
     delete init.ifDirective;
     delete init.forDirective;
@@ -249,7 +244,6 @@ export default class VirtualDom {
     if (this.father) {
       for (var i = this.index - 1; i >= 0; i--) {
         if (this.father.childrenPt[i] && this.father.childrenPt[i].giveDom()) {
-          log(i);
           return this.father.childrenPt[i].giveDom();
         }
       }
@@ -262,7 +256,6 @@ export default class VirtualDom {
     if (this.father) {
       for (var i = this.index + 1; i < this.father.childrenPt.length; i++) {
         if (this.father.childrenPt[i] && this.father.childrenPt[i].giveDom()) {
-          log(i);
           return this.father.childrenPt[i].giveDom();
         }
       }

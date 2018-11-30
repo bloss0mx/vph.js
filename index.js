@@ -41,7 +41,6 @@ window.vD1 = vdFactory(
 			},
 			addToList() {
 				const { inputText, todoList } = this.store.getValues('inputText', 'todoList');
-				console.log(inputText);
 				const value = inputText.outputData()
 				todoList.push(value);
 				inputText.setData('');

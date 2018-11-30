@@ -39,7 +39,6 @@ class DataUnit {
     return this.pushList;
   }
   outputData(index?: (number | string)): any {
-    // log('====>', index, this.data);
     if (index && testType(index) === 'string' && index.split('.').length > 1) {
       return [this.data, ...index.split('.')].reduce((t, i) => {
         return t.outputData ? t.outputData(i) : t[i];
