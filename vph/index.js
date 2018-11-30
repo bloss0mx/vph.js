@@ -20,32 +20,15 @@ export function vdFactory(init) {
   return new VirtualDom(init);
 }
 
-// export function div(init) {
-//   init.tag = 'div';
-//   return init;
-// }
-// export function p(init) {
-//   init.tag = 'p';
-//   return init;
-// }
-// export function span(init) {
-//   init.tag = 'span';
-//   return init;
-// }
-// export function input(init) {
-//   init.tag = 'input';
-//   init.children = undefined;
-//   return init;
-// }
-// export function button(init) {
-//   init.tag = 'button';
-//   return init;
-// }
-// export function ul(init) {
-//   init.tag = 'ul';
-//   return init;
-// }
-// export function li(init) {
-//   init.tag = 'li';
-//   return init;
-// }
+export function init(selector, vdom, productEnv = false) {
+  if (productEnv) {
+    console.assert(window.vdom === undefined, 'window.vdom 已被占用');
+    if (window.vdom === undefined) {
+      window.vdom = vdom;
+      console.warn('在控制台打出vdom来跟踪 virtual dom 变化！');
+    }
+  }
+  setTimeout(() => {
+    $(selector).append(vdom.giveDom());
+  }, 0);
+};

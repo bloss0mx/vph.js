@@ -14,15 +14,12 @@ class IfDirective {
     this.findOrigin(init.flagName);
   }
   findOrigin(name, node) {
-    log(this.store);
     const found = this.store.outputData(name);
     if (found !== undefined) {
       found.addPush(this);
     }
   }
   run(data, type, index) {
-    log('======> if', data);
-    // log(data);
     this.ifDirectiveOperate(data == this.key);
   }
   // deletePt() {
@@ -159,7 +156,6 @@ class onDirective {
   findCallback() {
     let pt = this.pt;
     for (; ;) {
-      console.log(pt.father);
       if (pt.father) {
         pt = pt.father;
       } else {
@@ -208,13 +204,11 @@ function forDirectiveOperate(data, index, operate) {
       const { tmpDom, tmpChildrenPt } = this.pt.makeForChildren();
       this.pt.insertToAvilableBefore(tmpDom);
       this.pt.forDomPt.push(tmpChildrenPt);
-      log('length === 0');
     } else {
       const { tmpDom, tmpChildrenPt } = this.pt.makeForChildren();
       const targetDom = nextNBrother(this.pt.previousBrother());
       this.pt.forDomPt.push(tmpChildrenPt);
       targetDom.append(tmpDom);
-      log('length > 0');
       // 列表to do 注册attr
     }
   } else if (operate === ARRAYY_OPERATE['set']) {

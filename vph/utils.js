@@ -133,9 +133,8 @@ const testType = (value) => {
 /**
  * 代替console.log
  */
-// const log = console.log;
 const log = () => {
-  // console.log(...arguments);
+  console.log(...arguments);
 }
 
 module.exports = {
@@ -155,5 +154,4 @@ module.exports = {
   duoTag_Count0,
   closeTag,
   testType,
-  // log,
 }

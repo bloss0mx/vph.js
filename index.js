@@ -1,11 +1,8 @@
-import { vdFactory, tags } from './vph';
-const { div, p, span, input, button, ul, li } = tags;
-import { interval } from 'rxjs';
-import $ from 'jquery';
-import moment from 'moment';
+import { vdFactory, tags, init } from './vph';
+const { div, p, span, input, button, ol, ul, li } = tags;
 import Time from './time-component';
 
-window.vD1 = vdFactory(
+init('#app', vdFactory(
 	div({
 		children: [
 			Time,
@@ -13,15 +10,11 @@ window.vD1 = vdFactory(
 				onDirective: 'input.onInput'
 			}),
 			button({
-				name: 'yo~',
-				children: ['yo~'],
+				children: ['Add to list'],
 				onDirective: 'click.addToList',
 			}),
-			ul({
+			ol({
 				children: [
-					// li({
-					// 	children: ['hey'],
-					// }),
 					li({
 						children: ['{{x}}'],
 						forDirective: 'x in todoList'
@@ -41,7 +34,6 @@ window.vD1 = vdFactory(
 			},
 			addToList() {
 				const { inputText, todoList } = this.store.getValues('inputText', 'todoList');
-				console.log(inputText);
 				const value = inputText.outputData()
 				todoList.push(value);
 				inputText.setData('');
@@ -50,12 +42,4 @@ window.vD1 = vdFactory(
 		whenInit() {
 		}
 	})
-);
-// vD1.store = { first: window.first };
-const dom = vD1.giveDom();
-
-
-
-setTimeout(() => {
-	$('#app').append(dom);
-}, 0);
+), true);
