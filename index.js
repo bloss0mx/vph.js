@@ -1,39 +1,14 @@
-import { vdFactory, div, p, span, input, button, ul, li } from './vph'
+import { vdFactory, tags } from './vph';
+const { div, p, span, input, button, ul, li } = tags;
 import { interval } from 'rxjs';
 import $ from 'jquery';
 import moment from 'moment';
-
-
-const time = vdFactory(
-	div({
-		children: [
-			'现在时间：',
-			'{{time}}'
-		],
-		state: {
-			time: moment().format('YYYY-MM-DD HH:mm:ss'),
-		},
-		actions: {
-			interval() {
-				const { time } = this.store.getValues('time');
-				interval(1000).subscribe({
-					next: item => {
-						const value = moment().format('YYYY-MM-DD HH:mm:ss');
-						time.setData(value);
-					}
-				});
-			}
-		},
-		whenInit() {
-			this.interval();
-		}
-	})
-);
+import Time from './time-component';
 
 window.vD1 = vdFactory(
 	div({
 		children: [
-			time,
+			Time,
 			input({
 				onDirective: 'input.onInput'
 			}),
@@ -44,9 +19,9 @@ window.vD1 = vdFactory(
 			}),
 			ul({
 				children: [
-					li({
-						children:['asdf']
-					}),
+					// li({
+					// 	children: ['hey'],
+					// }),
 					li({
 						children: ['{{x}}'],
 						forDirective: 'x in todoList'

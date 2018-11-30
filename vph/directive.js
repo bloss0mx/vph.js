@@ -105,17 +105,16 @@ class forDirective {
       forStore: baseData,
       baseDataName: this.baseDataName,
     });
-    if (this.pt.childrenPt.length === 0) {
-      const targetDom = this.pt.father.childrenPt[this.pt.index].dom
+    if (this.pt.childrenPt.length === 0 && this.pt.index > 0) {
       if (this.pt.father.childrenPt.length === 0) {
         $(this.pt.father.dom).prepend(tmpDom);
       } else {
         $(tmpDom).insertAfter($(this.pt.father.childrenPt[this.pt.index - 1].dom));
       }
+    } else if (this.pt.childrenPt.length === 0 && this.pt.index === 0) {
+      $(this.pt.father.dom).prepend(tmpDom);
     } else if (this.childrenDom[targetIndex - 1]) {
       $(tmpDom).insertAfter(this.childrenDom[targetIndex - 1]);
-    } else {
-      this.pt.insertToAvilableBefore(tmpDom);
     }
     this.pt.childrenPt.splice(index, 0, tmpChildrenPt);
     childrenStore.addPush(tmpChildrenPt);
