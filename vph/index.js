@@ -24,6 +24,20 @@ export function span(init) {
   init.tag = 'span';
   return init;
 }
-export function For(init){
-  return forDirective(init);
+export function input(init) {
+  init.tag = 'input';
+  init.children = undefined;
+  return init;
+}
+export function button(init) {
+  init.tag = 'button';
+  return init;
+}
+export function ul(init) {
+  init.tag = 'ul';
+  return init;
+}
+export function li(init) {
+  init.tag = 'li';
+  return init;
 }

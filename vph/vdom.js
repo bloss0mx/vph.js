@@ -4,7 +4,7 @@ import $ from 'jquery';
 import { DataUnit, Arrayy, Objecty, dataFactory } from './DataUnit';
 import { TextDom, PlainText, AttrObj } from './domObj';
 import { vdFactory } from './index';
-import { IfDirective, forDirective } from './directive';
+import { IfDirective, forDirective, onDirective } from './directive';
 import { ARRAYY_OPERATE } from './constant';
 
 /**
@@ -21,6 +21,7 @@ export default class VirtualDom {
     this.childrenPt = [];
     this.ifDirective = init.ifDirective || null;
     this.forDirective = init.forDirective || null;
+    this.onDirective = init.onDirective || null;
     this.varibleName = init.varibleName !== undefined ? init.varibleName : undefined;
     this.baseDataName = init.baseDataName !== undefined ? init.baseDataName : undefined;
     this.setFather(init.father, init.index);
@@ -39,6 +40,7 @@ export default class VirtualDom {
       }, 0);
     }
     this.attrPt = this.initAttr();
+    this.onDirective = this.initOn();
     this.ifDirectivePt = this.initIf();
     this.forDirective ? this.forDirectivePt = this.initFor(init.forDirective, init) : null;
   }
@@ -87,6 +89,11 @@ export default class VirtualDom {
     this.forDomPt = [];
     return new forDirective({ directive: _directive, pt: this, store: this.store });
   }
+  initOn() {
+    const _directive = this.onDirective;
+    if (!_directive) return;
+    return new onDirective({ directive: _directive, pt: this, store: this.store });
+  }
   /**
    * 绑定action
    */
@@ -115,7 +122,7 @@ export default class VirtualDom {
    * 初始化子节点
    */
   makeChildren() {
-    this.childrenPt = this.children.map((item, index) => {
+    this.childrenPt = this.children === undefined ? [] : this.children.map((item, index) => {
       if (item && item.__proto__.constructor === VirtualDom) {
         item.setFather(this, index);
         log('this is a Component');

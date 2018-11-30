@@ -129,10 +129,50 @@ class forDirective {
 }
 
 class onDirective {
+  constructor(init) {
+    this.store = init.store;
+    this.pt = init.pt;
+    this.callback = init.callback;
+    this.directive = init.directive;//'input.'
 
+    this.init();
+    this.findCallback();
+    this.findOrigin();
+  }
+  init() {
+    const splited = this.directive.split('.');
+    const handled = splited.map(item => {
+      return item.replace(/[\s]*/, '');
+    })
+    this.eventType = handled[0];
+    this.callbackName = handled[1];
+  }
+  findOrigin() {
+    if (this.eventType && this.callback) {
+      this.pt.dom.addEventListener(this.eventType, this.callback);
+    }
+  }
+  findCallback() {
+    let pt = this.pt;
+    for (; ;) {
+      console.log(pt.father);
+      if (pt.father) {
+        pt = pt.father;
+      } else {
+        break;
+      }
+    }
+    if (pt.actions && pt.actions[this.callbackName]) {
+      this.callback = pt.actions[this.callbackName].bind(pt);
+    }
+  }
+  rmSelf() {
+    this.pt.dom.removeEventListener(this.eventType, this.callback);
+  }
 }
 
-export { IfDirective, forDirective };
+export { IfDirective, forDirective, onDirective };
+
 
 
 function nextNBrother(dom, n) {
