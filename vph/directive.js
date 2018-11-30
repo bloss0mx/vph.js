@@ -118,6 +118,7 @@ class forDirective {
     this.childrenPt.splice(index, 0, tmpChildrenPt);
   }
   rmFromList(data, index) {
+    this.pt.childrenPt.splice(index, 1);
     this.childrenPt[index].rmSelf();
     this.childrenPt.splice(index, 1);
     $(this.childrenDom[index]).remove();
@@ -127,8 +128,8 @@ class forDirective {
   }
 }
 
-class onDirective{
-  
+class onDirective {
+
 }
 
 export { IfDirective, forDirective };

@@ -137,7 +137,7 @@ window.vD1 = vdFactory(
 		actions: {
 			start() {
 				const { array1 } = this.store.getValues('array1');
-				interval(1000).subscribe({
+				interval(100).subscribe({
 					next: item => {
 						array1.push(item);
 						array1.shift();
