@@ -3,6 +3,8 @@ import _ from 'lodash';
 import $ from 'jquery';
 import { exposeToWindow } from './Lady_tool';
 
+const TEMPLATE_REGEXP = /\{\{[^\s]+\}\}/;
+
 class TextDom {
   constructor(name, store, index, baseDataName) {
     this.name = name;
@@ -26,17 +28,17 @@ class TextDom {
     }
   }
   run(data, type, index) {
-    if (this.name === '{{x}}') {
+    if (this.name.match(TEMPLATE_REGEXP)) {
     }
     this.dom.textContent = data;
   }
   giveDom() {
-    if (this.name === '{{x}}')
+    if (this.name.match(TEMPLATE_REGEXP))
       exposeToWindow(Math.floor(Math.random() * 100), this.dom);
     return this.dom;
   }
   rmSelf() {
-    const valueName = this.template.match(/\{\{[^\s]+\}\}/);
+    const valueName = this.template.match(TEMPLATE_REGEXP);
     if (valueName[0]) {
       const value = valueName[0] && valueName[0].replace(/\{|\}/g, '');
       const found = this.store.outputData(value);
@@ -69,7 +71,7 @@ class AttrObj {
     this.findOrigin(this.value, this.dom);
   }
   findOrigin(tmp, node) {
-    const valueName = tmp.match(/\{\{[^\s]+\}\}/);
+    const valueName = tmp.match(TEMPLATE_REGEXP);
     if (valueName) {
       const value = valueName[0] && valueName[0].replace(/\{|\}/g, '');
       const found = this.store.outputData(value);
@@ -80,7 +82,7 @@ class AttrObj {
     }
   }
   rmSelf(trace) {
-    const valueName = this.template.match(/\{\{[^\s]+\}\}/);
+    const valueName = this.template.match(TEMPLATE_REGEXP);
     if (valueName[0]) {
       const value = valueName[0] && valueName[0].replace(/\{|\}/g, '');
       const found = this.store.outputData(value);
@@ -93,7 +95,7 @@ class AttrObj {
   run(data, type, index) {
     if (data) {
       this.value = data;
-      const value = this.template.replace(/\{\{[^s]+\}\}/, data);
+      const value = this.template.replace(TEMPLATE_REGEXP, data);
       $(this.dom).attr(this.name, value);
     } else {
       $(this.dom).removeAttr(this.name);

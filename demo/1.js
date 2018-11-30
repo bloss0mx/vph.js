@@ -1,4 +1,5 @@
-import { vdFactory, div, p, span, input, button } from './vph'
+import { vdFactory, tags } from './vph';
+const { div, p, span, input, button, ul, li } = tags;
 import { interval } from 'rxjs';
 import $ from 'jquery';
 import moment from 'moment';
