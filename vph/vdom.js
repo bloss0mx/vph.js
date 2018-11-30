@@ -27,6 +27,8 @@ export default class VirtualDom {
     this.setFather(init.father, init.index);
 
     this.store = init.store === undefined ? {} : init.store;//本地store存储
+    this.store = init.forStore === undefined ? this.store : init.forStore;
+    console.log(this.store);
     this.props = init.props === undefined ? {} : init.props;//父节点传入store
     this.actions = init.actions;
 
@@ -145,7 +147,7 @@ export default class VirtualDom {
       } else if (testType(item) === 'object') {
         const { store, ...other } = item;
         const node = vdFactory({
-          // baseDataName: this.baseDataName,
+          baseDataName: this.baseDataName,
           store: this.store,
           father: this,
           index: index,
@@ -161,12 +163,14 @@ export default class VirtualDom {
    * @param {*} childInitMsg 
    */
   makeForChildren(childInitMsg) {
+    console.log(this.childrenPt);
     const init = this.init;
     delete init.ifDirective;
     delete init.forDirective;
     init.varibleName = childInitMsg.varibleName;
     init.baseDataName = childInitMsg.baseDataName;
     init.store = this.store;
+    init.forStore = childInitMsg.forStore;
     init.props = this.props;
     const vdom = vdFactory(init);
     return {

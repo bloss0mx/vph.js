@@ -73,13 +73,14 @@ class forDirective {
     }
   }
   init() {
-    const childrenStore = this.store.outputData(this.baseDataName)
-      .map((item, index) => {
-        return item;
-      });
+    const baseData = this.store.outputData(this.baseDataName)
+    const childrenStore = baseData.map((item, index) => {
+      return item;
+    });
     childrenStore.map((item, index) => {
       const { tmpDom, tmpChildrenPt } = this.pt.makeForChildren({
         varibleName: index,
+        forStore: baseData,
         baseDataName: this.baseDataName,
         // ...item
       });
@@ -93,25 +94,29 @@ class forDirective {
     });
   }
   run(data, type, index, operate) {
-    log('=========');
-    log(data, type, index);
-    log(this.store);
     this.forDirectiveOperate(data, index, operate);
   }
   addToList(data, index) {
     const targetIndex = index - 1;
-    const childrenStore = this.store.outputData(this.baseDataName + '.' + (targetIndex));
+    const baseData = this.store.outputData(this.baseDataName)
+    const childrenStore = baseData.outputData(targetIndex);
     const { tmpDom, tmpChildrenPt } = this.pt.makeForChildren({
       varibleName: targetIndex,
+      forStore: baseData,
       baseDataName: this.baseDataName,
     });
-
-    if (this.childrenDom[targetIndex - 1]) {
+    if (this.pt.childrenPt.length === 0) {
+      const targetDom = this.pt.father.childrenPt[this.pt.index].dom
+      if (this.pt.father.childrenPt.length === 0) {
+        $(this.pt.father.dom).prepend(tmpDom);
+      } else {
+        $(tmpDom).insertAfter($(this.pt.father.childrenPt[this.pt.index - 1].dom));
+      }
+    } else if (this.childrenDom[targetIndex - 1]) {
       $(tmpDom).insertAfter(this.childrenDom[targetIndex - 1]);
     } else {
       this.pt.insertToAvilableBefore(tmpDom);
     }
-
     this.pt.childrenPt.splice(index, 0, tmpChildrenPt);
     childrenStore.addPush(tmpChildrenPt);
     this.childrenDom.splice(index, 0, tmpDom);
