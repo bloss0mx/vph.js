@@ -15,52 +15,61 @@ class DataUnit {
     this.pushList = [];
     this.type = testType(data);
 
+    // 数组和对象不进行数值初始化
     if (this.type === 'array' || this.type === 'object') {
-      // throw(`DataUnit type error: data = ${data}`);
-      return;
-    }
-    setTimeout(() => {
-      if (this.pushList) {
-        this.pushList.map((item, index) => {
+    } else {
+      setTimeout(() => {
+        this.pushList && this.pushList.map((item, index) => {
           this.data = data;
           item.run && item.run(data, this.type, index, ARRAYY_OPERATE['add']);
         });
-      }
-    }, 0);
+      }, 0);
+    }
   }
 
   addPush(pushOrigin) {
     this.pushList.push(pushOrigin);
+    this.pushList = _.uniq(this.pushList);
   }
   rmPush(pushOrigin) {
     this.pushList = _.difference(this.pushList, [pushOrigin]);
   }
-  exchangePushList() {
-    return this.pushList;
-  }
-  outputData(index?: (number | string)): any {
+  outputData(index?: string | number): any {
+    //深度取值
     if (index && testType(index) === 'string' && index.split('.').length > 1) {
       return [this.data, ...index.split('.')].reduce((t, i) => {
         return t.outputData ? t.outputData(i) : t[i];
       });
     }
+    //数组，无参数 => 取全部
     if (index === undefined && this.type === 'array') {
       return this.data.map(item => {
         return item;
       });
-    } else if (index === undefined && this.type === 'object') {
+    }
+    //对象，无参数 => 取全部
+    if (index === undefined && this.type === 'object') {
       let _data = {};
       for (let i in this.data) {
         _data[i] = this.data[i];
       }
       return _data;
-    } else if (index !== undefined && (this.type === 'array' || this.type === 'object')) {
+    }
+    //有参数，数组或对象 => 取全部
+    if (index !== undefined && (this.type === 'array' || this.type === 'object')) {
       return this.data[index];
-    } else if (this.type !== 'array' && this.type !== 'object') {
+    }
+    //非数组或对象 => 取基本值 
+    if (this.type !== 'array' && this.type !== 'object') {
       return this.data;
     }
   }
-  setData(data, name?: (number | string)): DataUnit {
+  /**
+   * 设置值
+   * @param data 
+   * @param name 
+   */
+  setData(data, name?: string): DataUnit {
 
     // console.warn('========  setData  ========')
 
@@ -82,6 +91,7 @@ class DataUnit {
       isChanged = ARRAYY_OPERATE['set'];
     }
 
+    //修改以后，推送值
     if (isChanged !== '') {
       this.pushList.map((item, index) => {
         item.run && item.run(this.data, this.type, index, ARRAYY_OPERATE['set']);
@@ -89,6 +99,9 @@ class DataUnit {
     }
     return this;
   }
+  /**
+   * 析构函数😜
+   */
   rmSelf() {
     for (let i in this) {
       this[i] = null;
@@ -106,13 +119,14 @@ class Arrayy extends DataUnit {
     super(data);
     this.pushList = [];
     this.pushFunc = pushFunc;
-    this.cpData(data);
+    this.data = this.cpData(data);
     this.type = 'array';
   }
 
   cpData(data: Array<any>): Array<DataUnit> {
     const _data = data.map((item, index) => dataFactory(item));
-    this.data = _data;
+    // this.data = _data;
+    return _data;
   }
   /**
    * 插入
