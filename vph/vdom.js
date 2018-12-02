@@ -18,7 +18,7 @@ export default class VirtualDom {
     this.attr = init.attr;
     this.attrPt = [];
     this.children = init.children;
-    this.childrenPt = [];
+    this.childrenPt = [];//
     this.ifDirective = init.ifDirective || null;
     this.forDirective = init.forDirective || null;
     this.onDirective = init.onDirective || null;
@@ -186,7 +186,29 @@ export default class VirtualDom {
    * 输出dom
    */
   giveDom() {
+    if (this.ifDirective === 'index') console.log('index', this.father);
     return this.dom;
+  }
+  hide() {
+    this.childrenPt.map(item => {
+      item.rmSelf && item.rmSelf();
+    });
+    if (this.ifDirective === 'index')
+      console.log(this.childrenPt, this.children);
+    this.attrPt.map(item => {
+      item.rmSelf && item.rmSelf();
+    });
+    // this.ifDirectivePt && this.ifDirectivePt.rmSelf();
+    $(this.dom).remove();
+    this.dom = null;
+  }
+  show() {
+    if (!this.dom) {
+      this.initDom();
+      this.makeChildren();
+      this.insertToAvilableBefore(this.giveDom());
+      this.attrPt = this.initAttr();
+    }
   }
   /**
    * 删除自己
@@ -196,9 +218,12 @@ export default class VirtualDom {
     this.childrenPt.map(item => {
       item.rmSelf && item.rmSelf();
     });
+    if (this.ifDirective === 'index')
+      console.log(this.childrenPt, this.children);
     this.attrPt.map(item => {
       item.rmSelf && item.rmSelf();
     });
+    this.ifDirectivePt && this.ifDirectivePt.rmSelf();
     // if (this.childrenPt) {
     //   console.log(this.childrenPt);
     //   for (let i = 0; i < this.childrenPt.length; i++) {

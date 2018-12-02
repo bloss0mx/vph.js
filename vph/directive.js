@@ -11,15 +11,17 @@ class IfDirective {
     this.pt = init.pt;
 
     this.key = init.key ? init.key : true;//
-    this.findOrigin(init.flagName);
+    this.findOrigin();
   }
-  findOrigin(name, node) {
-    const found = this.store.outputData(name);
+  findOrigin(node) {
+    const found = this.store.outputData(this.flagName);
     if (found !== undefined) {
       found.addPush(this);
     }
   }
   run(data, type, index) {
+    if (this.flagNamel === 'index2');
+    console.log('run');
     this.ifDirectiveOperate(data == this.key);
   }
   // deletePt() {
@@ -29,20 +31,19 @@ class IfDirective {
   //   }
   // }
   ifDirectiveOperate(flag) {
+    // if (this.flagName === 'index2') {
+    //   console.log('index2');
+    // }
     if (flag) {
-      if (!this.pt.dom) {
-        this.pt.initDom();
-        this.pt.makeChildren();
-        this.pt.insertToAvilableBefore(this.pt.giveDom());
-        this.pt.attrPt = this.pt.initAttr();
-      }
+      this.pt.show();
     } else {
-      // this.pt.attrPt.map(item => {
-      //   item.rmSelf('hey');
-      // });
-      // this.pt.rmSelf();
-      this.pt.rmSelf('how');
-      // this.deletePt();
+      this.pt.hide('how');
+    }
+  }
+  rmSelf() {
+    const found = this.store.outputData(this.flagName);
+    if (found !== undefined) {
+      found.rmPush(this);
     }
   }
 }
