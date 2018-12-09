@@ -4,10 +4,11 @@ import {
   ARRAYY_OPERATE,
 } from './constant';
 import { forDirective } from './directive';
+import { BaseObj } from './domObj';
 
 class DataUnit {
   protected data: any;
-  protected pushList: Array<any>;
+  protected pushList: Array<BaseObj>;
   protected type: String;
 
   constructor(data: any) {
@@ -15,6 +16,10 @@ class DataUnit {
     this.pushList = [];
     this.type = testType(data);
 
+    this.dataInit(data);
+  }
+
+  protected dataInit(data) {
     // 数组和对象不进行数值初始化
     if (this.type === 'array' || this.type === 'object') {
     } else {
@@ -27,16 +32,34 @@ class DataUnit {
     }
   }
 
+  /**
+   * 增加依赖
+   * @param pushOrigin 
+   */
   addPush(pushOrigin) {
     this.pushList.push(pushOrigin);
     this.pushList = _.uniq(this.pushList);
   }
+
+  /**
+   * 删除依赖
+   * @param pushOrigin 
+   */
   rmPush(pushOrigin) {
     this.pushList = _.difference(this.pushList, [pushOrigin]);
   }
-  outputData(index?: string | number): any {
+
+  /**
+   * 输出值
+   * @param index 
+   */
+  outputData(index?: string): any {
     //深度取值
-    if (index && testType(index) === 'string' && index.split('.').length > 1) {
+    if (
+      index
+      && testType(index) === 'string'
+      && index.split('.').length > 1
+    ) {
       return [this.data, ...index.split('.')].reduce((t, i) => {
         return t.outputData ? t.outputData(i) : t[i];
       });
@@ -56,7 +79,10 @@ class DataUnit {
       return _data;
     }
     //有参数，数组或对象 => 取全部
-    if (index !== undefined && (this.type === 'array' || this.type === 'object')) {
+    if (
+      index !== undefined
+      && (this.type === 'array' || this.type === 'object')
+    ) {
       return this.data[index];
     }
     //非数组或对象 => 取基本值 
@@ -64,27 +90,23 @@ class DataUnit {
       return this.data;
     }
   }
+
   /**
    * 设置值
    * @param data 
    * @param name 
    */
   setData(data, name?: string): DataUnit {
-
-    // console.warn('========  setData  ========')
-
     let isChanged = '';
 
     if (this.type === 'object' && name !== undefined) {
       this.outputData(name).setData(data);
-      // this.data[name].run(data, this.type, name);
-      // isChanged = ARRAYY_OPERATE['set'];
     } else if (this.type === 'array' && name !== undefined) {
       this.outputData(name).setData(data);
-      // this.data[name].setData(data);
-      // this.data[name].run(data, this.type, name);
-      // isChanged = ARRAYY_OPERATE['set'];
-    } else if ((this.type === 'object' || this.type === 'array') && name === undefined) {
+    } else if (
+      (this.type === 'object' || this.type === 'array')
+      && name === undefined
+    ) {
     } else {
       this.type = testType(data);
       this.data = data;
@@ -99,6 +121,7 @@ class DataUnit {
     }
     return this;
   }
+
   /**
    * 析构函数😜
    */
@@ -112,18 +135,15 @@ class DataUnit {
 class Arrayy extends DataUnit {
   protected data: Array<any>;
   protected pushList: Array<forDirective>;
-  private pushFunc: Function;
-  private pullFunc: Function;
 
-  constructor(data: Array<any>, pushFunc?: Function, pullFunc?: Function) {
+  constructor(data: Array<any>) {
     super(data);
     this.pushList = [];
-    this.pushFunc = pushFunc;
-    this.data = this.cpData(data);
+    this.data = this.dataInit(data);
     this.type = 'array';
   }
 
-  cpData(data: Array<any>): Array<DataUnit> {
+  protected dataInit(data: Array<any>): Array<DataUnit> {
     const _data = data.map((item, index) => dataFactory(item));
     // this.data = _data;
     return _data;
@@ -150,7 +170,7 @@ class Arrayy extends DataUnit {
   }
 
   /**
-   * 添加时推送
+   * 添加时推送（for指令专用）
    * @param newData 
    * @param index 
    */
@@ -178,17 +198,20 @@ class Arrayy extends DataUnit {
     this.addCallback(newData, this.data.length);
     return this;
   }
+
   pop() {
     const _data = this.difference(this.data.length, 1)
     this.data = _.difference(this.data, _data);
     this.rmCallback(_data, this.data.length);
     return _data;
   }
+
   unshift(tmp): Arrayy {
     const newData = this.splice(0, 0, tmp);
     this.addCallback(newData, 0);
     return this;
   }
+
   shift() {
     if (this.data.length === 0) return;
     const _data = this.difference(0, 1);
@@ -196,17 +219,20 @@ class Arrayy extends DataUnit {
     this.rmCallback(_data, 0);
     return _data;
   }
+
   insertTo(tmp, index) {
     const newData = this.splice(index, 0, tmp);
     this.addCallback(newData, index);
     return this;
   }
+
   rmFrom(index) {
     const _data = this.difference(index, 1)
     this.data = _.difference(this.data, _data);
     this.rmCallback(_data, index);
     return _data
   }
+
   map(callback) {
     return this.data.map(callback);
   }
@@ -218,24 +244,26 @@ class Arrayy extends DataUnit {
 
 class Objecty extends DataUnit {
   protected data: Object;
-  private pushFunc: Function;
-  private pullFunc: Function;
 
-  constructor(data: Array<any>, pushFunc?: Function, pullFunc?: Function) {
+  constructor(data: Array<any>) {
     super(data);
     this.pushList = [];
-    this.pushFunc = pushFunc;
-    this.data = this.cpData(data);
+    this.data = this.dataInit(data);
     this.type = 'object';
   }
 
-  cpData(data: Array<any>): Object {
+  protected dataInit(data: Array<any>): Object {
     let _data = {}
     for (let i in data) {
       _data[i] = dataFactory(data[i]);
     }
     return _data;
   }
+  
+  /**
+   * 批量获取store
+   * @param params 
+   */
   getValues(...params) {
     const queue = [...params];
     const _data = {};

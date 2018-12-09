@@ -13,39 +13,33 @@ class IfDirective {
     this.key = init.key ? init.key : true;//
     this.findOrigin();
   }
+
   findOrigin(node) {
     const found = this.store.outputData(this.flagName);
     if (found !== undefined) {
       found.addPush(this);
     }
   }
+
   run(data, type, index) {
-    if (this.flagNamel === 'index2');
-    console.log('run');
     this.ifDirectiveOperate(data == this.key);
   }
-  // deletePt() {
-  //   const found = this.store.outputData(name);
-  //   if (found !== undefined) {
-  //     found.rmPush(this);
-  //   }
-  // }
+
   ifDirectiveOperate(flag) {
-    // if (this.flagName === 'index2') {
-    //   console.log('index2');
-    // }
     if (flag) {
       this.pt.show();
     } else {
       this.pt.hide('how');
     }
   }
+
   rmSelf() {
     const found = this.store.outputData(this.flagName);
     if (found !== undefined) {
       found.rmPush(this);
     }
   }
+
 }
 class forDirective {
   constructor(init) {
@@ -56,6 +50,7 @@ class forDirective {
 
     this.findOrigin(init.directive);
   }
+
   findOrigin(directive) {
     const splited = directive.split('in');
     const handled = splited.map(item => {
@@ -70,6 +65,7 @@ class forDirective {
       this.init();
     }
   }
+
   init() {
     const baseData = this.store.outputData(this.baseDataName)
     const childrenStore = baseData.map((item, index) => {
@@ -91,9 +87,11 @@ class forDirective {
       this.childrenPt.push(tmpChildrenPt);
     });
   }
+
   run(data, type, index, operate) {
     this.forDirectiveOperate(data, index, operate);
   }
+
   addToList(data, index) {
     const targetIndex = index - 1;
     const baseData = this.store.outputData(this.baseDataName)
@@ -119,6 +117,7 @@ class forDirective {
     this.childrenDom.splice(index, 0, tmpDom);
     this.childrenPt.splice(index, 0, tmpChildrenPt);
   }
+
   rmFromList(data, index) {
     this.pt.childrenPt.splice(index, 1);
     this.childrenPt[index].rmSelf();
@@ -126,8 +125,10 @@ class forDirective {
     $(this.childrenDom[index]).remove();
     this.childrenDom.splice(index, 1);
   }
+
   forDirectiveOperate(data, index, operate) {
   }
+
 }
 
 class onDirective {
@@ -141,6 +142,7 @@ class onDirective {
     this.findCallback();
     this.findOrigin();
   }
+
   init() {
     const splited = this.directive.split('.');
     const handled = splited.map(item => {
@@ -149,11 +151,13 @@ class onDirective {
     this.eventType = handled[0];
     this.callbackName = handled[1];
   }
+
   findOrigin() {
     if (this.eventType && this.callback) {
       this.pt.dom.addEventListener(this.eventType, this.callback);
     }
   }
+
   findCallback() {
     let pt = this.pt;
     for (; ;) {
@@ -167,9 +171,11 @@ class onDirective {
       this.callback = pt.actions[this.callbackName].bind(pt);
     }
   }
+
   rmSelf() {
     this.pt.dom.removeEventListener(this.eventType, this.callback);
   }
+  
 }
 
 export { IfDirective, forDirective, onDirective };

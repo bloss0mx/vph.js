@@ -106,6 +106,11 @@ const duoTag_Count0 = (current, tag) => (compose(equel(current), getTagFromHead)
  */
 const closeTag = (current, tag) => (compose(equel(current), getTagFromTail))(tag);
 
+/**
+ * 类型检查 __proto__ 对比
+ * @param {*Any} value 需要检查的值
+ * @return {*String} 
+ */
 const testType = (value) => {
   if (value === undefined) {
     return 'undefined';

@@ -71,7 +71,7 @@ export default class VirtualDom {
     this.store = dataFactory(init);
   }
   /**
-   * 初始化指令
+   * 初始化if指令
    */
   initIf() {
     const ifDirective = this.ifDirective;
@@ -80,6 +80,9 @@ export default class VirtualDom {
     }
     return new IfDirective({ flagName: ifDirective, pt: this, store: this.store });
   }
+  /**
+   * 初始化for指令
+   */
   initFor() {
     const _directive = this.forDirective;
     if (!_directive) {
@@ -89,6 +92,9 @@ export default class VirtualDom {
     this.forDomPt = [];
     return new forDirective({ directive: _directive, pt: this, store: this.store });
   }
+  /**
+   * 初始化on指令
+   */
   initOn() {
     const _directive = this.onDirective;
     if (!_directive) return;
@@ -173,28 +179,22 @@ export default class VirtualDom {
       tmpChildrenPt: vdom,
     };
   }
-  // run(data, type, index) {
-  //   if (this.beforeRun !== undefined) {
-  //     this.beforeRun();
-  //   }
-  //   log('I got push: ', data);
-  //   if (this.afterRun !== undefined) {
-  //     this.afterRun();
-  //   }
-  // }
   /**
    * 输出dom
    */
   giveDom() {
-    if (this.ifDirective === 'index') console.log('index', this.father);
+    // if (this.ifDirective === 'index') console.log('index', this.father);
     return this.dom;
   }
+  /**
+   * 隐藏（删除）dom
+   */
   hide() {
     this.childrenPt.map(item => {
       item.rmSelf && item.rmSelf();
     });
-    if (this.ifDirective === 'index')
-      console.log(this.childrenPt, this.children);
+    // if (this.ifDirective === 'index')
+    //   console.log(this.childrenPt, this.children);
     this.attrPt.map(item => {
       item.rmSelf && item.rmSelf();
     });
@@ -202,6 +202,9 @@ export default class VirtualDom {
     $(this.dom).remove();
     this.dom = null;
   }
+  /**
+   * 显示（新建）dom
+   */
   show() {
     if (!this.dom) {
       this.initDom();
