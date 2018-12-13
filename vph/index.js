@@ -1,8 +1,5 @@
-import { testType, log } from './utils';
-import _ from 'lodash';
 import $ from 'jquery';
 import VirtualDom from './vdom';
-import { forDirective } from './directive';
 import { TAGS } from './constant';
 
 const _tags = {};

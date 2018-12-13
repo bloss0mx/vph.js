@@ -3,7 +3,7 @@ const exposeToWindow = (name, pt) => {
     window.expose = {};
   }
   window.expose[name] = pt;
-}
+};
 
 const fetchFromWindow = (name) => {
   if (!window.expose) {
@@ -15,7 +15,7 @@ const fetchFromWindow = (name) => {
   if (window.expose[name] === undefined) {
   }
   return window.expose[name];
-}
+};
 
 window.fetchFromWindow = fetchFromWindow;
 

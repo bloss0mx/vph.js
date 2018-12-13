@@ -1,7 +1,6 @@
-import { vdFactory, tags, init } from '../vph';
-const { div, p, span, input, button, ul, li } = tags;
+import { vdFactory, tags } from '../vph';
+const { div } = tags;
 import { interval } from 'rxjs';
-import $ from 'jquery';
 import moment from 'moment';
 
 const time = vdFactory(
@@ -17,7 +16,7 @@ const time = vdFactory(
       interval() {
         const { time } = this.store.getValues('time');
         interval(1000).subscribe({
-          next: item => {
+          next: () => {
             const value = moment().format('YYYY-MM-DD HH:mm:ss');
             time.setData(value);
           }

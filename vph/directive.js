@@ -55,7 +55,7 @@ class forDirective {
     const splited = directive.split('in');
     const handled = splited.map(item => {
       return item.replace(/[\s]*/, '');
-    })
+    });
     this.varibleName = handled[0];
     this.baseDataName = handled[1];
 
@@ -67,7 +67,7 @@ class forDirective {
   }
 
   init() {
-    const baseData = this.store.outputData(this.baseDataName)
+    const baseData = this.store.outputData(this.baseDataName);
     const childrenStore = baseData.map((item, index) => {
       return item;
     });
