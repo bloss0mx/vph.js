@@ -1,4 +1,4 @@
-import { vdFactory, tags, init } from '../vph';
+import { vdFactory, tags } from '../vph';
 const { div } = tags;
 import { interval } from 'rxjs';
 
@@ -46,7 +46,31 @@ const component1 = vdFactory(
     ],
     actions: {
       interval() {
-        const { value, color, color0, color1, color2, color3, color4, color5, color6, color7, switcher } = this.store.getValues('value', 'color', 'color0', 'color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'switcher');
+        const {
+          value,
+          color,
+          color0,
+          color1,
+          color2,
+          color3,
+          color4,
+          color5,
+          color6,
+          color7,
+          switcher
+        } = this.store.getValues(
+          'value',
+          'color',
+          'color0',
+          'color1',
+          'color2',
+          'color3',
+          'color4',
+          'color5',
+          'color6',
+          'color7',
+          'switcher'
+        );
         interval(100).subscribe({
           next: item => {
             value.outputData('index').setData(item);
@@ -56,9 +80,9 @@ const component1 = vdFactory(
           next: item => {
             switcher.setData(item % 100);
           }
-        })
+        });
         interval(100).subscribe({
-          next: item => {
+          next: () => {
             color7.setData(color6.outputData());
             color6.setData(color5.outputData());
             color5.setData(color4.outputData());
@@ -69,7 +93,7 @@ const component1 = vdFactory(
             color0.setData(color.outputData());
             color.setData('#' + Math.floor(Math.random() * (parseInt('ffffff', 16))).toString(16));
           }
-        })
+        });
       }
     },
     whenInit() {

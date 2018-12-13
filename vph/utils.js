@@ -11,7 +11,7 @@ function curry(fn) {
       const arg = args;
       return function () {
         return act(...arg, ...args);
-      }
+      };
     }
   }
   return act();
@@ -27,7 +27,7 @@ function compose(..._args) { //后者的结果为前者的参数
       lastParam = args[i](lastParam);
     }
     return lastParam;
-  }
+  };
 }
 /**
  * 匹配单标签
@@ -39,7 +39,7 @@ const checkSingleTag = (tag) => tag && tag.match('area|base|col|command|embed|ke
  * @param tag 
  */
 const getTagFromHead = (tag) => {
-  const match = tag.match(/<[^ <\/]* |<[^ <\/]*>/)
+  const match = tag.match(/<[^ </]* |<[^ </]*>/);
   return match && match[0].replace(/<|>| /g, '');
 };
 /**
@@ -47,7 +47,7 @@ const getTagFromHead = (tag) => {
  * @param tag 
  */
 const getTagFromTail = (tag) => {
-  const match = tag.match(/<\/[^<]*>/)
+  const match = tag.match(/<\/[^<]*>/);
   return match && match[0].replace(/<\/|>/g, '');
 };
 /**
@@ -59,12 +59,12 @@ const matchComponent = (origin) => origin.match(/^[A-Z]/);
  * 匹配tag
  * @param origin 
  */
-const matchTags = (origin) => origin.match(/<[\/!-]{0,1}[^<]*[^-]>/g);
+const matchTags = (origin) => origin.match(/<[/!-]{0,1}[^<]*[^-]>/g);
 /**
  * 切片文本
  * @param origin 
  */
-const splitText = (origin) => origin.split(/<[\/!-]{0,1}[^<]*[^-]>/g).map(item => item.replace(/\n|\t/g, ''));
+const splitText = (origin) => origin.split(/<[/!-]{0,1}[^<]*[^-]>/g).map(item => item.replace(/\n|\t/g, ''));
 /**
  * 全等
  */
@@ -75,7 +75,7 @@ const equel = curry((a, b) => a === b);
  */
 const attr = (tag) => tag.replace(/<[^\s<>]*|>/g, '').replace(/^ | $/g, '').length > 0 && tag.replace(/<[^\s<>]*|>/g, '').replace(/^ | $/g, '').split(' ').map(item => ({
   attr: item.split('=')[0],
-  value: item.split('=')[1] && item.split('=')[1].replace(/\'|\"/g, ''),
+  value: item.split('=')[1] && item.split('=')[1].replace(/'|"/g, ''),
 })) || [];
 /**
  * 向后插入
@@ -86,7 +86,7 @@ const attr = (tag) => tag.replace(/<[^\s<>]*|>/g, '').replace(/^ | $/g, '').leng
 const insertAfter = (father, target, newDom) => {
   if (father.lastChild === target) father.appendChild(newDom);
   else father.insertBefore(newDom, target.nextSibling);
-}
+};
 
 //复合函数
 /**
@@ -133,16 +133,16 @@ const testType = (value) => {
     case (() => { }).__proto__:
       return 'function';
   }
-}
+};
 
 /**
  * 代替console.log
  */
-const log = () => {
+function log() {
   console.log(...arguments);
 }
 
-module.exports = {
+export {
   curry,
   compose,
   checkSingleTag,
@@ -159,4 +159,4 @@ module.exports = {
   duoTag_Count0,
   closeTag,
   testType,
-}
+};
