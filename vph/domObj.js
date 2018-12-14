@@ -100,7 +100,6 @@ class PlainText extends BaseObj {
     return this.dom;
   }
 
-  rmSelf() { }
 }
 
 class AttrObj extends BaseObj {

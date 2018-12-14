@@ -19,6 +19,10 @@ class DataUnit {
     this.dataInit(data);
   }
 
+  /**
+   * 异步
+   * @param data 
+   */
   protected dataInit(data) {
     // 数组和对象不进行数值初始化
     if (this.type === 'array' || this.type === 'object') {
@@ -143,7 +147,7 @@ class Arrayy extends DataUnit {
     this.type = 'array';
   }
 
-  protected dataInit(data: Array<any>): Array<DataUnit> {
+  protected dataInit(data: Array<any>): Array<DataUnit | Arrayy> {
     const _data = data.map((item, index) => dataFactory(item));
     // this.data = _data;
     return _data;
@@ -259,7 +263,7 @@ class Objecty extends DataUnit {
     }
     return _data;
   }
-  
+
   /**
    * 批量获取store
    * @param params 
@@ -278,7 +282,10 @@ class Objecty extends DataUnit {
 
 
 
-
+/**
+ * 转换为DataUnit对象
+ * @param data 
+ */
 function dataFactory(data) {
   const type = testType(data);
   if (type === 'array') {

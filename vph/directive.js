@@ -3,8 +3,32 @@ import _ from 'lodash';
 import $ from 'jquery';
 import { ARRAYY_OPERATE } from './constant';
 
-class IfDirective {
+class Directive {
+  /**
+   * 初始化
+   */
+  init() { }
+  /**
+   * 查找DataUnit源
+   */
+  findOrigin() { }
+  /**
+   * 数据更新
+   */
+  run() { }
+  /**
+   * 删除自己，去掉所有引用
+   */
+  mySelf() {
+    for (let i in this) {
+      this[i] = null;
+    }
+  }
+}
+
+class IfDirective extends Directive {
   constructor(init) {
+    super(init);
     this.flagName = init.flagName;
 
     this.store = init.store;
@@ -25,6 +49,10 @@ class IfDirective {
     this.ifDirectiveOperate(data == this.key);
   }
 
+  /**
+   * 显示隐藏操作
+   * @param {*} flag 
+   */
   ifDirectiveOperate(flag) {
     if (flag) {
       this.pt.show();
@@ -41,8 +69,9 @@ class IfDirective {
   }
 
 }
-class forDirective {
+class forDirective extends Directive {
   constructor(init) {
+    super(init);
     this.store = init.store;
     this.pt = init.pt;
     this.childrenPt = [];
@@ -92,6 +121,11 @@ class forDirective {
     this.forDirectiveOperate(data, index, operate);
   }
 
+  /**
+   * 添加dom到dom列表
+   * @param {*} data 
+   * @param {*} index 
+   */
   addToList(data, index) {
     const targetIndex = index - 1;
     const baseData = this.store.outputData(this.baseDataName)
@@ -118,6 +152,11 @@ class forDirective {
     this.childrenPt.splice(index, 0, tmpChildrenPt);
   }
 
+  /**
+   * 从dom列表删除dom
+   * @param {*} data 
+   * @param {*} index 
+   */
   rmFromList(data, index) {
     this.pt.childrenPt.splice(index, 1);
     this.childrenPt[index].rmSelf();
@@ -131,8 +170,9 @@ class forDirective {
 
 }
 
-class onDirective {
+class onDirective extends Directive {
   constructor(init) {
+    super(init);
     this.store = init.store;
     this.pt = init.pt;
     this.callback = init.callback;
@@ -147,7 +187,7 @@ class onDirective {
     const splited = this.directive.split('.');
     const handled = splited.map(item => {
       return item.replace(/[\s]*/, '');
-    })
+    });
     this.eventType = handled[0];
     this.callbackName = handled[1];
   }
@@ -158,6 +198,9 @@ class onDirective {
     }
   }
 
+  /**
+   * 组件根节点查找action
+   */
   findCallback() {
     let pt = this.pt;
     for (; ;) {
@@ -175,7 +218,7 @@ class onDirective {
   rmSelf() {
     this.pt.dom.removeEventListener(this.eventType, this.callback);
   }
-  
+
 }
 
 export { IfDirective, forDirective, onDirective };
