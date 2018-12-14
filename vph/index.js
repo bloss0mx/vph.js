@@ -34,4 +34,4 @@ export function init(selector, vdom, productEnv = false) {
   setTimeout(() => {
     $(selector).append(vdom.giveDom());
   }, 0);
-};
+}

@@ -45,15 +45,18 @@ export default class VirtualDom {
     this.ifDirectivePt = this.initIf();
     this.forDirective ? this.forDirectivePt = this.initFor(init.forDirective, init) : null;
   }
+  
   /**
    * 初始化dom
    */
   initForDom() {
     this.dom = document.createDocumentFragment();
   }
+
   initDom() {
     this.dom = document.createElement(this.tag);
   }
+
   /**
    * 设置父节点和index
    * @param {*} father 
@@ -63,6 +66,7 @@ export default class VirtualDom {
     this.father = father;
     this.index = index;
   }
+
   /**
    * 初始化state
    * @param {*} init 
@@ -70,6 +74,7 @@ export default class VirtualDom {
   initState(init) {
     this.store = dataFactory(init);
   }
+
   /**
    * 初始化if指令
    */
@@ -80,6 +85,7 @@ export default class VirtualDom {
     }
     return new IfDirective({ flagName: ifDirective, pt: this, store: this.store });
   }
+
   /**
    * 初始化for指令
    */
@@ -92,6 +98,7 @@ export default class VirtualDom {
     this.forDomPt = [];
     return new forDirective({ directive: _directive, pt: this, store: this.store });
   }
+
   /**
    * 初始化on指令
    */
@@ -100,6 +107,7 @@ export default class VirtualDom {
     if (!_directive) return;
     return new onDirective({ directive: _directive, pt: this, store: this.store });
   }
+
   /**
    * 绑定action
    */
@@ -111,6 +119,7 @@ export default class VirtualDom {
       }
     }
   }
+
   /**
    * 初始化属性
    */
@@ -123,6 +132,7 @@ export default class VirtualDom {
       return new AttrObj({ attr: item, dom: this.dom, store: this.store });
     });
   }
+
   /**
    * 初始化子节点
    */
@@ -160,6 +170,7 @@ export default class VirtualDom {
       }
     });
   }
+
   /**
    * for指令初始化子节点
    * @param {*} childInitMsg 
@@ -179,6 +190,7 @@ export default class VirtualDom {
       tmpChildrenPt: vdom,
     };
   }
+
   /**
    * 输出dom
    */
@@ -186,6 +198,7 @@ export default class VirtualDom {
     // if (this.ifDirective === 'index') console.log('index', this.father);
     return this.dom;
   }
+
   /**
    * 隐藏（删除）dom
    */
@@ -202,6 +215,7 @@ export default class VirtualDom {
     $(this.dom).remove();
     this.dom = null;
   }
+  
   /**
    * 显示（新建）dom
    */
@@ -213,6 +227,7 @@ export default class VirtualDom {
       this.attrPt = this.initAttr();
     }
   }
+  
   /**
    * 删除自己
    * @param {*}  
@@ -237,6 +252,7 @@ export default class VirtualDom {
     $(this.dom).remove();
     this.dom = null;
   }
+
   /**
    * 在上一个节点以后插入dom
    * @param {*} dom 
@@ -250,6 +266,7 @@ export default class VirtualDom {
       this.insertPre(dom);
     }
   }
+
   /**
    * 向后插入
    * @param {*} pt 
@@ -258,6 +275,7 @@ export default class VirtualDom {
   insertAfter(pt, dom) {
     $(dom).insertAfter($(pt));
   }
+
   /**
    * 向前插入
    * @param {*} dom 
@@ -265,6 +283,7 @@ export default class VirtualDom {
   insertPre(dom) {
     $(this.dom).prepend($(dom));
   }
+
   /**
    * 查找前一个兄弟节点
    */
@@ -277,6 +296,7 @@ export default class VirtualDom {
       }
     }
   }
+
   /**
    * 查找下一个兄弟节点
    */
@@ -289,4 +309,5 @@ export default class VirtualDom {
       }
     }
   }
+
 }
